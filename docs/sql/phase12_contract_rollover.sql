@@ -1,6 +1,6 @@
 -- phase12: contract rollover columns on public.rates
 -- Adds columns to persist the currently-active MCX futures contract per rate row.
--- Populated by the pull-live-rates Edge Function on every successful pull.
+-- Populated by RB Live Engine on every successful push.
 -- Idempotent — safe to re-run.
 
 alter table public.rates

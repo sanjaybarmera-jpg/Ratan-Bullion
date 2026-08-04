@@ -259,7 +259,7 @@ export function LiveRatePage() {
     placeholderData: false,
   });
   // Contract month / expiry are stamped onto the rates row itself by the
-  // pull-live-rates Edge Function on every successful pull, so the frontend
+  // RB Live Engine on every successful push, so the frontend
   // reads them straight from the rates table (see expiryFor below).
 
   // Realtime: refetch immediately when admin pushes a rate update.

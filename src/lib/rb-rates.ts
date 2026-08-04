@@ -13,7 +13,7 @@ export type RateRow = {
   is_available: boolean | null;
   customer_sell_enabled?: boolean | null;
   updated_at: string | null;
-  // Contract rollover columns (phase12). Populated by pull-live-rates on
+  // Contract rollover columns (phase12). Populated by RB Live Engine on
   // every successful pull; frontend reads these directly — never hardcode.
   contract_symbol?: string | null;
   contract_month?: string | null; // "MMM YYYY", e.g. "Aug 2026"
@@ -144,7 +144,7 @@ const MARKET_KEYS = [
 // ---------------------------------------------------------------------------
 // Active MCX futures contracts (dynamic, no hardcoding)
 //
-// The pull-live-rates Edge Function's Angel scrip-master resolver writes the
+// RB Live Engine writes the active contract metadata into app_settings:
 // currently-active near-month MCX FUTCOM contract into `app_settings` as JSON:
 //   id = 'angel_active_gold'   value_text = {"symbolToken","tradingSymbol","expiryISO","resolvedAt"}
 //   id = 'angel_active_silver' value_text = { ... }
