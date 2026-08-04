@@ -9,24 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AppRouteImport } from './routes/_app'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AuditRouteImport } from './routes/audit'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as AuditRouteImport } from './routes/audit'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
-import { Route as AppBankRouteImport } from './routes/_app.bank'
-import { Route as AppJewelleryRouteImport } from './routes/_app.jewellery'
-import { Route as AppMoreRouteImport } from './routes/_app.more'
-import { Route as AppOrdersRouteImport } from './routes/_app.orders'
 import { Route as AppTerminalRouteImport } from './routes/_app.terminal'
+import { Route as AppOrdersRouteImport } from './routes/_app.orders'
+import { Route as AppMoreRouteImport } from './routes/_app.more'
+import { Route as AppJewelleryRouteImport } from './routes/_app.jewellery'
+import { Route as AppBankRouteImport } from './routes/_app.bank'
 
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuditRoute = AuditRouteImport.update({
@@ -34,9 +30,13 @@ const AuditRoute = AuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -44,19 +44,9 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppBankRoute = AppBankRouteImport.update({
-  id: '/bank',
-  path: '/bank',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppJewelleryRoute = AppJewelleryRouteImport.update({
-  id: '/jewellery',
-  path: '/jewellery',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppMoreRoute = AppMoreRouteImport.update({
-  id: '/more',
-  path: '/more',
+const AppTerminalRoute = AppTerminalRouteImport.update({
+  id: '/terminal',
+  path: '/terminal',
   getParentRoute: () => AppRoute,
 } as any)
 const AppOrdersRoute = AppOrdersRouteImport.update({
@@ -64,9 +54,19 @@ const AppOrdersRoute = AppOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => AppRoute,
 } as any)
-const AppTerminalRoute = AppTerminalRouteImport.update({
-  id: '/terminal',
-  path: '/terminal',
+const AppMoreRoute = AppMoreRouteImport.update({
+  id: '/more',
+  path: '/more',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppJewelleryRoute = AppJewelleryRouteImport.update({
+  id: '/jewellery',
+  path: '/jewellery',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBankRoute = AppBankRouteImport.update({
+  id: '/bank',
+  path: '/bank',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -151,18 +151,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_app': {
-      id: '/_app'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AppRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/audit': {
@@ -172,11 +165,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuditRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/': {
@@ -186,25 +186,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/bank': {
-      id: '/_app/bank'
-      path: '/bank'
-      fullPath: '/bank'
-      preLoaderRoute: typeof AppBankRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/jewellery': {
-      id: '/_app/jewellery'
-      path: '/jewellery'
-      fullPath: '/jewellery'
-      preLoaderRoute: typeof AppJewelleryRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/more': {
-      id: '/_app/more'
-      path: '/more'
-      fullPath: '/more'
-      preLoaderRoute: typeof AppMoreRouteImport
+    '/_app/terminal': {
+      id: '/_app/terminal'
+      path: '/terminal'
+      fullPath: '/terminal'
+      preLoaderRoute: typeof AppTerminalRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/orders': {
@@ -214,11 +200,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrdersRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/terminal': {
-      id: '/_app/terminal'
-      path: '/terminal'
-      fullPath: '/terminal'
-      preLoaderRoute: typeof AppTerminalRouteImport
+    '/_app/more': {
+      id: '/_app/more'
+      path: '/more'
+      fullPath: '/more'
+      preLoaderRoute: typeof AppMoreRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/jewellery': {
+      id: '/_app/jewellery'
+      path: '/jewellery'
+      fullPath: '/jewellery'
+      preLoaderRoute: typeof AppJewelleryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/bank': {
+      id: '/_app/bank'
+      path: '/bank'
+      fullPath: '/bank'
+      preLoaderRoute: typeof AppBankRouteImport
       parentRoute: typeof AppRoute
     }
   }
