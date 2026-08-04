@@ -1,19 +1,13 @@
--- phase10: rates_health + provider configuration + pg_cron schedule
+-- phase10: rates_health (RB Live Engine writes rates directly)
 --
 -- Run this on the RB Supabase project (the one in RB_SUPABASE_URL).
 -- Idempotent — safe to re-run.
 
 -- ───────────────────────────────────────────────────────────
--- 1. Provider configuration (lives in existing app_settings)
+-- 1. Provider configuration (owned by RB Live Engine)
 -- ───────────────────────────────────────────────────────────
-insert into public.app_settings (id, value_text) values
-  ('rate_provider',              'ANGEL_ONE'),
-  ('provider_exchange',          'MCX'),
-  ('provider_symbol_gold',       ''),   -- fill via discover-angel-tokens
-  ('provider_symbol_silver',     ''),   -- fill via discover-angel-tokens
-  ('pull_interval_seconds',      '10'),
-  ('pull_loops_per_invocation',  '6')
-on conflict (id) do nothing;
+-- Provider configuration is owned by RB Live Engine (external service).
+-- No provider credentials or tokens are stored in app_settings.
 
 -- ───────────────────────────────────────────────────────────
 -- 2. rates_health monitoring table
@@ -53,52 +47,12 @@ create trigger trg_rates_health_touch
 before insert or update on public.rates_health
 for each row execute function public.rb_touch_rates_health();
 
-insert into public.rates_health (id, status) values ('pull-live-rates', 'unknown')
+insert into public.rates_health (id, status) values ('rb-live-engine', 'unknown')
 on conflict (id) do nothing;
 
 -- ───────────────────────────────────────────────────────────
--- 3. pg_cron schedule (every minute → function self-loops to 30s)
+-- 3. Verify (rates are written by RB Live Engine, not by pg_cron)
 -- ───────────────────────────────────────────────────────────
--- Requires extensions pg_cron and pg_net. Enable in Supabase dashboard:
---   Database → Extensions → enable `pg_cron` and `pg_net`.
-
-create extension if not exists pg_cron;
-create extension if not exists pg_net;
-
--- Replace these BEFORE running:
---   <PROJECT_REF>        e.g. abcdxyz   (your RB Supabase project ref)
---   <CRON_SECRET>        the value you set as PULL_RATES_CRON_SECRET secret
---
--- The schedule runs every minute, 24/7. The Edge Function decides
--- internally whether to fetch (e.g. you can short-circuit it during
--- market-closed hours by reading app_settings inside pullOnce).
-
-select cron.unschedule('pull-live-rates') where exists (
-  select 1 from cron.job where jobname = 'pull-live-rates'
-);
-
-select cron.schedule(
-  'pull-live-rates',
-  '* * * * *',
-  $$
-  select net.http_post(
-    url     := 'https://<PROJECT_REF>.functions.supabase.co/pull-live-rates',
-    headers := jsonb_build_object(
-      'Content-Type',   'application/json',
-      'x-cron-secret',  '<CRON_SECRET>'
-    ),
-    body    := '{}'::jsonb,
-    timeout_milliseconds := 90000
-  );
-  $$
-);
-
--- ───────────────────────────────────────────────────────────
--- 4. Verify
--- ───────────────────────────────────────────────────────────
---   select * from cron.job where jobname = 'pull-live-rates';
---   select * from cron.job_run_details where jobname = 'pull-live-rates'
---     order by start_time desc limit 5;
---   select * from public.rates_health where id = 'pull-live-rates';
+--   select * from public.rates_health where id = 'rb-live-engine';
 --   select id, mcx_ltp, high, low, updated_at from public.rates
 --     where id in ('gold','silver');
