@@ -10,43 +10,144 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TitleRouteImport } from './routes/title'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin/customers'
+import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
+import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
+import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authenticated/admin/products'
+import { Route as AuthenticatedAdminRatesRouteImport } from './routes/_authenticated/admin/rates'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TitleRoute = TitleRouteImport.update({
-  id: '/title',
-  path: '/title',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminCustomersRoute =
+  AuthenticatedAdminCustomersRouteImport.update({
+    id: '/customers',
+    path: '/customers',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminNotificationsRoute =
+  AuthenticatedAdminNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminOrdersRoute =
+  AuthenticatedAdminOrdersRouteImport.update({
+    id: '/orders',
+    path: '/orders',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminProductsRoute =
+  AuthenticatedAdminProductsRouteImport.update({
+    id: '/products',
+    path: '/products',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminRatesRoute = AuthenticatedAdminRatesRouteImport.update({
+  id: '/rates',
+  path: '/rates',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/title': typeof TitleRoute
+  '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/products': typeof AuthenticatedAdminProductsRoute
+  '/admin/rates': typeof AuthenticatedAdminRatesRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/title': typeof TitleRoute
+  '/auth': typeof AuthRoute
+  '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/products': typeof AuthenticatedAdminProductsRoute
+  '/admin/rates': typeof AuthenticatedAdminRatesRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/title': typeof TitleRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/_authenticated/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
+  '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/_authenticated/admin/products': typeof AuthenticatedAdminProductsRoute
+  '/_authenticated/admin/rates': typeof AuthenticatedAdminRatesRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/title'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/admin'
+    | '/admin/customers'
+    | '/admin/notifications'
+    | '/admin/orders'
+    | '/admin/products'
+    | '/admin/rates'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/title'
-  id: '__root__' | '/' | '/title'
+  to:
+    | '/'
+    | '/auth'
+    | '/admin/customers'
+    | '/admin/notifications'
+    | '/admin/orders'
+    | '/admin/products'
+    | '/admin/rates'
+    | '/admin'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/admin'
+    | '/_authenticated/admin/customers'
+    | '/_authenticated/admin/notifications'
+    | '/_authenticated/admin/orders'
+    | '/_authenticated/admin/products'
+    | '/_authenticated/admin/rates'
+    | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  TitleRoute: typeof TitleRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,30 +159,112 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/title': {
-      id: '/title'
-      path: '/title'
-      fullPath: '/title'
-      preLoaderRoute: typeof TitleRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/customers': {
+      id: '/_authenticated/admin/customers'
+      path: '/customers'
+      fullPath: '/admin/customers'
+      preLoaderRoute: typeof AuthenticatedAdminCustomersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/notifications': {
+      id: '/_authenticated/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AuthenticatedAdminNotificationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/orders': {
+      id: '/_authenticated/admin/orders'
+      path: '/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/products': {
+      id: '/_authenticated/admin/products'
+      path: '/products'
+      fullPath: '/admin/products'
+      preLoaderRoute: typeof AuthenticatedAdminProductsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/rates': {
+      id: '/_authenticated/admin/rates'
+      path: '/rates'
+      fullPath: '/admin/rates'
+      preLoaderRoute: typeof AuthenticatedAdminRatesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
   }
 }
 
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
+  AuthenticatedAdminNotificationsRoute: typeof AuthenticatedAdminNotificationsRoute
+  AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
+  AuthenticatedAdminProductsRoute: typeof AuthenticatedAdminProductsRoute
+  AuthenticatedAdminRatesRoute: typeof AuthenticatedAdminRatesRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
+    AuthenticatedAdminNotificationsRoute: AuthenticatedAdminNotificationsRoute,
+    AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
+    AuthenticatedAdminProductsRoute: AuthenticatedAdminProductsRoute,
+    AuthenticatedAdminRatesRoute: AuthenticatedAdminRatesRoute,
+    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  TitleRoute: TitleRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
