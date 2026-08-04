@@ -20,7 +20,7 @@ export const Route = createFileRoute("/title")({
 function TitlePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background">
-      <h1 className="text-5xl font-bold text-highlight">Hello, world!</h1>
+      <h1 className="text-5xl font-bold text-highlight">Hello, India!</h1>
       <Link to="/" className="text-sm text-muted-foreground underline">
         Back home
       </Link>
