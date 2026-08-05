@@ -167,12 +167,8 @@ function ProductDetail({
   );
 }
 
-const METAL_STYLE: Record<Metal, string> = {
-  Gold: "from-gold/25 via-gold/10 to-transparent border-gold/40",
-  Silver: "from-slate-300/20 via-slate-300/5 to-transparent border-slate-300/30",
-  Diamond: "from-sky-200/20 via-sky-200/5 to-transparent border-sky-200/30",
-  Platinum: "from-zinc-200/20 via-zinc-200/5 to-transparent border-zinc-200/30",
-};
+
+
 
 function Crumbs({ trail, onJump }: { trail: string[]; onJump: (level: number) => void }) {
   return (
