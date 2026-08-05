@@ -13,6 +13,7 @@ import {
   adminDeleteJewelleryImage,
   adminReorderJewelleryImages,
 } from "@/lib/rb-admin.functions";
+import { CollectionsSection } from "@/components/rb/admin/CollectionsSection";
 
 type Category = {
   id?: string;
