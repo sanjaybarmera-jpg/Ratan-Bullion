@@ -105,6 +105,8 @@ export function productMetal(p: JewelleryProduct): Metal | null {
 }
 
 export function productType(p: JewelleryProduct): string {
+  const explicit = (p as { product_type?: string | null }).product_type;
+  if (explicit && explicit.trim()) return explicit.trim();
   const h = haystack(p);
   return PRODUCT_TYPES.find((t) => h.includes(t.toLowerCase().replace(/s$/, ""))) ?? "Other";
 }
