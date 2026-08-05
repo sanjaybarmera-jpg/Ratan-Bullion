@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, LogOut, ShieldCheck, Smartphone, Users, LineChart, Landmark, Newspaper, ClipboardList, Settings as SettingsIcon, Search, Crown, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, LogOut, ShieldCheck, Smartphone, Users, LineChart, Landmark, Newspaper, ClipboardList, Gem, Settings as SettingsIcon, Search, Crown, ChevronDown, ChevronRight } from "lucide-react";
 import {
   adminListCustomers,
   adminListDevices,
@@ -17,6 +17,7 @@ import { BankTab } from "@/components/rb/admin/BankTab";
 import { NewsTab } from "@/components/rb/admin/NewsTab";
 import { OrdersTab } from "@/components/rb/admin/OrdersTab";
 import { SettingsTab } from "@/components/rb/admin/SettingsTab";
+import { JewelleryTab } from "@/components/rb/admin/JewelleryTab";
 
 const TOKEN_KEY = "rb_admin_token";
 
@@ -162,7 +163,7 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
   const setVipFn = useServerFn(adminSetCustomerVip);
   const setApprovedFn = useServerFn(adminSetDeviceApproved);
 
-  type Tab = "customers" | "rates" | "bank" | "news" | "orders" | "settings";
+  type Tab = "customers" | "rates" | "bank" | "news" | "orders" | "jewellery" | "settings";
   const [tab, setTab] = useState<Tab>("customers");
 
   const customersQ = useQuery({
@@ -231,6 +232,7 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
           <TabBtn active={tab === "orders"} onClick={() => setTab("orders")} icon={ClipboardList} label="Orders" />
           <TabBtn active={tab === "bank"} onClick={() => setTab("bank")} icon={Landmark} label="Bank" />
           <TabBtn active={tab === "news"} onClick={() => setTab("news")} icon={Newspaper} label="News" />
+          <TabBtn active={tab === "jewellery"} onClick={() => setTab("jewellery")} icon={Gem} label="Jewellery" />
           <TabBtn active={tab === "settings"} onClick={() => setTab("settings")} icon={SettingsIcon} label="Settings" />
         </div>
       </header>
@@ -255,6 +257,8 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
           <BankTab token={token} onUnauthorized={onLogout} />
         ) : tab === "news" ? (
           <NewsTab token={token} onUnauthorized={onLogout} />
+        ) : tab === "jewellery" ? (
+          <JewelleryTab token={token} onUnauthorized={onLogout} />
         ) : (
           <SettingsTab token={token} onUnauthorized={onLogout} />
         )}
