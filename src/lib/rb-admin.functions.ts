@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { rbSupabaseAdmin } from "@/integrations/rb-supabase/client.server";
+import { rbSupabaseAdmin, getRbAdminUrl } from "@/integrations/rb-supabase/client.server";
 import { recalculateAllRates } from "@/lib/rb-rates-recalc.server";
 
 type AdminSession = {
