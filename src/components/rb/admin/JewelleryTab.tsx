@@ -483,14 +483,15 @@ function ProductsSection({ token, onUnauthorized }: { token: string; onUnauthori
 /* ---------------- Tab shell ---------------- */
 
 export function JewelleryTab({ token, onUnauthorized }: { token: string; onUnauthorized: () => void }) {
-  const [sub, setSub] = useState<"categories" | "products">("categories");
+  type Sub = "collections" | "categories" | "products";
+  const [sub, setSub] = useState<Sub>("collections");
 
-  const btn = (key: "categories" | "products", label: string) => (
+  const btn = (key: Sub, label: string) => (
     <button
       key={key}
       onClick={() => setSub(key)}
       className={
-        "flex-1 rounded-md px-3 py-1.5 text-xs font-medium border " +
+        "flex-1 rounded-md px-2 py-1.5 text-[11px] font-medium border " +
         (sub === key
           ? "border-primary/40 bg-primary/10 text-primary"
           : "border-border text-muted-foreground hover:text-foreground")
@@ -503,10 +504,13 @@ export function JewelleryTab({ token, onUnauthorized }: { token: string; onUnaut
   return (
     <div className="space-y-3">
       <div className="flex gap-1">
-        {btn("categories", "Categories")}
-        {btn("products", "Products & Images")}
+        {btn("collections", "Collections")}
+        {btn("categories", "Metals")}
+        {btn("products", "All Products")}
       </div>
-      {sub === "categories" ? (
+      {sub === "collections" ? (
+        <CollectionsSection token={token} onUnauthorized={onUnauthorized} />
+      ) : sub === "categories" ? (
         <CategoriesSection token={token} onUnauthorized={onUnauthorized} />
       ) : (
         <ProductsSection token={token} onUnauthorized={onUnauthorized} />
