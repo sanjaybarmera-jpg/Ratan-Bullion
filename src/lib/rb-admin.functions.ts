@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { rbSupabaseAdmin } from "@/integrations/rb-supabase/client.server";
+import { rbSupabaseAdmin, getRbAdminUrl } from "@/integrations/rb-supabase/client.server";
 import { recalculateAllRates } from "@/lib/rb-rates-recalc.server";
 
 type AdminSession = {
@@ -669,3 +669,185 @@ export const adminSetAppSetting = createServerFn({ method: "POST" })
     return { ok: true, db_value: dbText, rows: finalRows };
   });
 
+
+/* ---------------- Jewellery Catalogue ---------------- */
+const JEWEL_BUCKET = "jewellery-images";
+
+function publicUrl(path: string): string {
+  return `${getRbAdminUrl()}/storage/v1/object/public/${JEWEL_BUCKET}/${path}`;
+}
+
+export const adminListJewelleryCategories = createServerFn({ method: "POST" })
+  .inputValidator((i: { token: string }) => ({ token: String(i?.token ?? "") }))
+  .handler(async ({ data }) => {
+    const a = await checkAdmin(data.token); if (!a.ok) return { unauthorized: true } as any;
+    const { data: rows, error } = await rbSupabaseAdmin
+      .from("jewellery_categories").select("*")
+      .order("sort_order", { ascending: true }).order("name", { ascending: true });
+    if (error) throw new Error(error.message);
+    return { categories: rows ?? [] };
+  });
+
+export const adminUpsertJewelleryCategory = createServerFn({ method: "POST" })
+  .inputValidator((i: { token: string; row: Record<string, unknown> }) => ({
+    token: String(i?.token ?? ""), row: i?.row ?? {},
+  }))
+  .handler(async ({ data }) => {
+    const a = await checkAdmin(data.token); if (!a.ok) return { unauthorized: true } as any;
+    const fields = ["name", "slug", "image_url", "sort_order", "is_active"] as const;
+    const row: Record<string, unknown> = {};
+    for (const k of fields) if (k in data.row) row[k] = data.row[k];
+    if (typeof row.name === "string") row.name = row.name.trim();
+    if (!row.name && !(data.row as any).id) throw new Error("Category name is required");
+    if (row.slug === "") row.slug = null;
+    if (row.sort_order !== undefined) row.sort_order = Number(row.sort_order) || 0;
+    const id = (data.row as any).id as string | undefined;
+    if (id) {
+      const { error } = await rbSupabaseAdmin.from("jewellery_categories").update(row).eq("id", id);
+      if (error) throw new Error(error.message);
+      return { ok: true, id };
+    }
+    const { data: ins, error } = await rbSupabaseAdmin
+      .from("jewellery_categories").insert(row).select("id").single();
+    if (error) throw new Error(error.message);
+    return { ok: true, id: ins?.id };
+  });
+
+export const adminDeleteJewelleryCategory = createServerFn({ method: "POST" })
+  .inputValidator((i: { token: string; id: string }) => ({ token: String(i?.token ?? ""), id: String(i?.id ?? "") }))
+  .handler(async ({ data }) => {
+    const a = await checkAdmin(data.token); if (!a.ok) return { unauthorized: true } as any;
+    const { error } = await rbSupabaseAdmin.from("jewellery_categories").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminUploadJewelleryImage = createServerFn({ method: "POST" })
+  .inputValidator((i: { token: string; fileName: string; contentType: string; dataBase64: string; productId?: string | null; alt?: string | null }) => ({
+    token: String(i?.token ?? ""),
+    fileName: String(i?.fileName ?? "upload"),
+    contentType: String(i?.contentType ?? "image/jpeg"),
+    dataBase64: String(i?.dataBase64 ?? ""),
+    productId: i?.productId ? String(i.productId) : null,
+    alt: i?.alt ? String(i.alt) : null,
+  }))
+  .handler(async ({ data }) => {
+    const a = await checkAdmin(data.token); if (!a.ok) return { unauthorized: true } as any;
+    if (!data.dataBase64) throw new Error("No file data");
+    const bin = atob(data.dataBase64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const ext = (data.fileName.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const path = `${data.productId ?? "categories"}/${Date.now()}-${randomToken().slice(0, 8)}.${ext}`;
+    const { error: upErr } = await rbSupabaseAdmin.storage
+      .from(JEWEL_BUCKET)
+      .upload(path, bytes, { contentType: data.contentType, upsert: false });
+    if (upErr) throw new Error(upErr.message);
+    const url = publicUrl(path);
+    if (!data.productId) return { ok: true, url, storage_path: path };
+
+    const { data: last } = await rbSupabaseAdmin
+      .from("jewellery_images").select("sort_order")
+      .eq("product_id", data.productId)
+      .order("sort_order", { ascending: false }).limit(1);
+    const nextOrder = ((last?.[0] as any)?.sort_order ?? -1) + 1;
+    const { data: ins, error } = await rbSupabaseAdmin.from("jewellery_images").insert({
+      product_id: data.productId,
+      storage_path: path,
+      image_url: url,
+      alt_text: data.alt,
+      sort_order: nextOrder,
+      is_active: true,
+    }).select("id").single();
+    if (error) throw new Error(error.message);
+    return { ok: true, url, storage_path: path, id: ins?.id };
+  });
+
+export const adminListJewelleryProducts = createServerFn({ method: "POST" })
+  .inputValidator((i: { token: string }) => ({ token: String(i?.token ?? "") }))
+  .handler(async ({ data }) => {
+    const a = await checkAdmin(data.token); if (!a.ok) return { unauthorized: true } as any;
+    const { data: rows, error } = await rbSupabaseAdmin
+      .from("jewellery_products").select("*, jewellery_images(*)")
+      .order("sort_order", { ascending: true }).order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return { products: rows ?? [] };
+  });
+
+export const adminUpsertJewelleryProduct = createServerFn({ method: "POST" })
+  .inputValidator((i: { token: string; row: Record<string, unknown> }) => ({
+    token: String(i?.token ?? ""), row: i?.row ?? {},
+  }))
+  .handler(async ({ data }) => {
+    const a = await checkAdmin(data.token); if (!a.ok) return { unauthorized: true } as any;
+    const fields = [
+      "product_code", "name", "category_id", "metal", "purity",
+      "gross_weight", "net_weight", "making_charge", "description",
+      "is_active", "sort_order",
+    ] as const;
+    const row: Record<string, unknown> = {};
+    for (const k of fields) if (k in data.row) row[k] = data.row[k];
+    for (const k of ["gross_weight", "net_weight"] as const) {
+      if (k in row) row[k] = row[k] === "" || row[k] === null ? null : Number(row[k]);
+    }
+    if ("sort_order" in row) row.sort_order = Number(row.sort_order) || 0;
+    if (row.category_id === "") row.category_id = null;
+    if (typeof row.name === "string") row.name = row.name.trim();
+    if (typeof row.product_code === "string") row.product_code = row.product_code.trim();
+    const id = (data.row as any).id as string | undefined;
+    if (!id) {
+      if (!row.name) throw new Error("Product name is required");
+      if (!row.product_code) throw new Error("Product code is required");
+    }
+    row.updated_at = new Date().toISOString();
+    if (id) {
+      const { error } = await rbSupabaseAdmin.from("jewellery_products").update(row).eq("id", id);
+      if (error) throw new Error(error.message);
+      return { ok: true, id };
+    }
+    const { data: ins, error } = await rbSupabaseAdmin
+      .from("jewellery_products").insert(row).select("id").single();
+    if (error) throw new Error(error.message);
+    return { ok: true, id: ins?.id };
+  });
+
+export const adminDeleteJewelleryProduct = createServerFn({ method: "POST" })
+  .inputValidator((i: { token: string; id: string }) => ({ token: String(i?.token ?? ""), id: String(i?.id ?? "") }))
+  .handler(async ({ data }) => {
+    const a = await checkAdmin(data.token); if (!a.ok) return { unauthorized: true } as any;
+    const { data: imgs } = await rbSupabaseAdmin
+      .from("jewellery_images").select("storage_path").eq("product_id", data.id);
+    const paths = (imgs ?? []).map((r: any) => r.storage_path).filter(Boolean) as string[];
+    if (paths.length) await rbSupabaseAdmin.storage.from(JEWEL_BUCKET).remove(paths);
+    const { error } = await rbSupabaseAdmin.from("jewellery_products").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminDeleteJewelleryImage = createServerFn({ method: "POST" })
+  .inputValidator((i: { token: string; id: string }) => ({ token: String(i?.token ?? ""), id: String(i?.id ?? "") }))
+  .handler(async ({ data }) => {
+    const a = await checkAdmin(data.token); if (!a.ok) return { unauthorized: true } as any;
+    const { data: img } = await rbSupabaseAdmin
+      .from("jewellery_images").select("storage_path").eq("id", data.id).maybeSingle();
+    const path = (img as any)?.storage_path as string | undefined;
+    const { error } = await rbSupabaseAdmin.from("jewellery_images").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    if (path) await rbSupabaseAdmin.storage.from(JEWEL_BUCKET).remove([path]);
+    return { ok: true };
+  });
+
+export const adminReorderJewelleryImages = createServerFn({ method: "POST" })
+  .inputValidator((i: { token: string; ids: string[] }) => ({
+    token: String(i?.token ?? ""),
+    ids: Array.isArray(i?.ids) ? i.ids.map(String) : [],
+  }))
+  .handler(async ({ data }) => {
+    const a = await checkAdmin(data.token); if (!a.ok) return { unauthorized: true } as any;
+    for (let idx = 0; idx < data.ids.length; idx++) {
+      const { error } = await rbSupabaseAdmin
+        .from("jewellery_images").update({ sort_order: idx }).eq("id", data.ids[idx]);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
