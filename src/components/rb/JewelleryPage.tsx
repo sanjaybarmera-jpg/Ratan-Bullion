@@ -1,12 +1,20 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Gem, Phone, MessageCircle, X, ImageIcon } from "lucide-react";
+import { Loader2, Gem, Phone, MessageCircle, X, ImageIcon, ChevronRight } from "lucide-react";
 import {
-  fetchJewelleryCategories,
   fetchJewelleryProducts,
   productImages,
+  productMetal,
+  productType,
+  productCollection,
+  uniqueSorted,
+  METALS,
+  PRODUCT_TYPE_ORDER,
+  COLLECTION_ORDER,
+  type Metal,
   type JewelleryProduct,
 } from "@/lib/rb-jewellery";
+
 import { fetchMarketSettings } from "@/lib/rb-rates";
 
 function digits(s: string | null | undefined) {
