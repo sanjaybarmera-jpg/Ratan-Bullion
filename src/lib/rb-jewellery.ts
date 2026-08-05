@@ -63,3 +63,65 @@ export function productImages(p: JewelleryProduct): string[] {
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   return Array.from(new Set(rows.map((i) => i.image_url as string)));
 }
+
+/* ---------- Showroom catalogue taxonomy (derived client-side) ---------- */
+
+export const METALS = ["Gold", "Silver", "Diamond", "Platinum"] as const;
+export type Metal = (typeof METALS)[number];
+
+const PRODUCT_TYPES = [
+  "Payal",
+  "Ring",
+  "Necklace",
+  "Mangalsutra",
+  "Pendant",
+  "Bangles",
+  "Bracelet",
+  "Chain",
+  "Kada",
+];
+
+const COLLECTIONS = [
+  "Jodhpuri",
+  "Rajkot",
+  "Bombay Fancy",
+  "Antique",
+  "Italian",
+  "Temple",
+  "Lightweight",
+  "Traditional",
+];
+
+function haystack(p: JewelleryProduct) {
+  return `${p.name ?? ""} ${p.description ?? ""} ${p.sku ?? ""}`.toLowerCase();
+}
+
+export function productMetal(p: JewelleryProduct): Metal | null {
+  const m = (p.metal ?? "").toLowerCase();
+  const found = METALS.find((x) => m.includes(x.toLowerCase()));
+  if (found) return found;
+  const h = haystack(p);
+  return METALS.find((x) => h.includes(x.toLowerCase())) ?? null;
+}
+
+export function productType(p: JewelleryProduct): string {
+  const h = haystack(p);
+  return PRODUCT_TYPES.find((t) => h.includes(t.toLowerCase().replace(/s$/, ""))) ?? "Other";
+}
+
+export function productCollection(p: JewelleryProduct): string {
+  const h = haystack(p);
+  return COLLECTIONS.find((c) => h.includes(c.toLowerCase())) ?? "Classic";
+}
+
+export function uniqueSorted(values: string[], order: string[]): string[] {
+  const set = Array.from(new Set(values));
+  return set.sort((a, b) => {
+    const ia = order.indexOf(a);
+    const ib = order.indexOf(b);
+    return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib) || a.localeCompare(b);
+  });
+}
+
+export const PRODUCT_TYPE_ORDER = PRODUCT_TYPES;
+export const COLLECTION_ORDER = COLLECTIONS;

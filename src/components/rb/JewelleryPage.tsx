@@ -1,12 +1,20 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Gem, Phone, MessageCircle, X, ImageIcon } from "lucide-react";
+import { Loader2, Gem, Phone, MessageCircle, X, ImageIcon, ChevronRight } from "lucide-react";
 import {
-  fetchJewelleryCategories,
   fetchJewelleryProducts,
   productImages,
+  productMetal,
+  productType,
+  productCollection,
+  uniqueSorted,
+  METALS,
+  PRODUCT_TYPE_ORDER,
+  COLLECTION_ORDER,
+  type Metal,
   type JewelleryProduct,
 } from "@/lib/rb-jewellery";
+
 import { fetchMarketSettings } from "@/lib/rb-rates";
 
 function digits(s: string | null | undefined) {
@@ -160,11 +168,64 @@ function ProductDetail({
   );
 }
 
+const METAL_STYLE: Record<Metal, string> = {
+  Gold: "from-gold/25 via-gold/10 to-transparent border-gold/40",
+  Silver: "from-slate-300/20 via-slate-300/5 to-transparent border-slate-300/30",
+  Diamond: "from-sky-200/20 via-sky-200/5 to-transparent border-sky-200/30",
+  Platinum: "from-zinc-200/20 via-zinc-200/5 to-transparent border-zinc-200/30",
+};
+
+function Crumbs({ trail, onJump }: { trail: string[]; onJump: (level: number) => void }) {
+  return (
+    <nav className="flex flex-wrap items-center gap-1 text-[11px] text-muted-foreground">
+      <button onClick={() => onJump(0)} className="hover:text-gold">
+        Catalogue
+      </button>
+      {trail.map((t, i) => (
+        <span key={t + i} className="flex items-center gap-1">
+          <ChevronRight className="h-3 w-3 opacity-50" />
+          <button
+            onClick={() => onJump(i + 1)}
+            className={i === trail.length - 1 ? "font-semibold text-gold" : "hover:text-gold"}
+          >
+            {t}
+          </button>
+        </span>
+      ))}
+    </nav>
+  );
+}
+
+function TileButton({
+  label,
+  sub,
+  onClick,
+}: {
+  label: string;
+  sub?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center justify-between gap-3 rounded-2xl border border-gold/20 bg-card px-4 py-4 text-left transition hover:border-gold/50"
+    >
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-semibold tracking-wide text-foreground">
+          {label}
+        </span>
+        {sub && (
+          <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-muted-foreground">
+            {sub}
+          </span>
+        )}
+      </span>
+      <ChevronRight className="h-4 w-4 shrink-0 text-gold" />
+    </button>
+  );
+}
+
 export function JewelleryPage() {
-  const catsQ = useQuery({
-    queryKey: ["rb", "jewellery", "categories"],
-    queryFn: fetchJewelleryCategories,
-  });
   const prodQ = useQuery({
     queryKey: ["rb", "jewellery", "products"],
     queryFn: fetchJewelleryProducts,
@@ -179,69 +240,126 @@ export function JewelleryPage() {
   const wa = waPhone(settings.whatsapp_phone || settings.dealer_phone);
   const tel = (settings.dealer_phone || settings.contact_phone || "").replace(/[^\d+]/g, "");
 
-  const [cat, setCat] = useState<string | "all">("all");
+  const [metal, setMetal] = useState<Metal | null>(null);
+  const [type, setType] = useState<string | null>(null);
+  const [collection, setCollection] = useState<string | null>(null);
   const [selected, setSelected] = useState<JewelleryProduct | null>(null);
 
-  const cats = catsQ.data ?? [];
   const products = prodQ.data ?? [];
+
+  const byMetal = useMemo(
+    () => (metal ? products.filter((p) => productMetal(p) === metal) : []),
+    [products, metal],
+  );
+  const types = useMemo(
+    () => uniqueSorted(byMetal.map(productType), PRODUCT_TYPE_ORDER),
+    [byMetal],
+  );
+  const byType = useMemo(
+    () => (type ? byMetal.filter((p) => productType(p) === type) : []),
+    [byMetal, type],
+  );
+  const collections = useMemo(
+    () => uniqueSorted(byType.map(productCollection), COLLECTION_ORDER),
+    [byType],
+  );
   const shown = useMemo(
-    () => (cat === "all" ? products : products.filter((p) => p.category_id === cat)),
-    [products, cat],
+    () => (collection ? byType.filter((p) => productCollection(p) === collection) : []),
+    [byType, collection],
   );
 
-  const loading = catsQ.isLoading || prodQ.isLoading;
+  const metalCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of products) {
+      const k = productMetal(p);
+      if (k) m.set(k, (m.get(k) ?? 0) + 1);
+    }
+    return m;
+  }, [products]);
+
+  const trail = [metal, type, collection].filter(Boolean) as string[];
+  const jump = (level: number) => {
+    if (level === 0) {
+      setMetal(null);
+      setType(null);
+      setCollection(null);
+    } else if (level === 1) {
+      setType(null);
+      setCollection(null);
+    } else if (level === 2) {
+      setCollection(null);
+    }
+  };
 
   return (
     <section className="space-y-4 pb-6">
       <header>
         <p className="text-xs uppercase tracking-wider text-primary/80">Ratan Bullion</p>
         <h2 className="mt-1 flex items-center gap-2 text-2xl font-semibold">
-          <Gem className="h-5 w-5 text-gold" /> Jewellery
+          <Gem className="h-5 w-5 text-gold" /> Jewellery Showroom
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Browse our collection and enquire directly.
+          Choose a metal, then a product type and collection to view designs.
         </p>
       </header>
 
-      {cats.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          <button
-            onClick={() => setCat("all")}
-            className={`shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide transition ${
-              cat === "all"
-                ? "border-gold bg-gold/15 text-gold"
-                : "border-border text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            All
-          </button>
-          {cats.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setCat(c.id)}
-              className={`shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide transition ${
-                cat === c.id
-                  ? "border-gold bg-gold/15 text-gold"
-                  : "border-border text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {c.name}
-            </button>
-          ))}
-        </div>
-      )}
+      {trail.length > 0 && <Crumbs trail={trail} onJump={jump} />}
 
-      {loading ? (
+      {prodQ.isLoading ? (
         <div className="flex justify-center py-10">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </div>
-      ) : prodQ.isError || catsQ.isError ? (
+      ) : prodQ.isError ? (
         <div className="rounded-xl border border-destructive/40 bg-card p-5 text-sm text-destructive">
           Failed to load jewellery catalogue.
         </div>
+      ) : !metal ? (
+        <div className="grid grid-cols-2 gap-3">
+          {METALS.map((m) => (
+            <button
+              key={m}
+              onClick={() => setMetal(m)}
+              className={`flex h-36 flex-col justify-end rounded-3xl border bg-gradient-to-br p-4 text-left transition hover:brightness-125 ${METAL_STYLE[m]}`}
+            >
+              <Gem className="mb-auto h-6 w-6 text-gold" />
+              <span className="text-lg font-semibold tracking-wide text-foreground">{m}</span>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                {metalCounts.get(m) ?? 0} designs
+              </span>
+            </button>
+          ))}
+        </div>
+      ) : !type ? (
+        types.length === 0 ? (
+          <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+            {metal} collection will be updated soon.
+          </div>
+        ) : (
+          <div className="grid gap-2">
+            {types.map((t) => (
+              <TileButton
+                key={t}
+                label={t}
+                sub={`${byMetal.filter((p) => productType(p) === t).length} designs`}
+                onClick={() => setType(t)}
+              />
+            ))}
+          </div>
+        )
+      ) : !collection ? (
+        <div className="grid gap-2">
+          {collections.map((c) => (
+            <TileButton
+              key={c}
+              label={c}
+              sub={`${byType.filter((p) => productCollection(p) === c).length} designs`}
+              onClick={() => setCollection(c)}
+            />
+          ))}
+        </div>
       ) : shown.length === 0 ? (
         <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-          Our jewellery collection will be updated soon.
+          Designs coming soon.
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
@@ -270,7 +388,7 @@ export function JewelleryPage() {
 
       <div className="rounded-2xl border border-gold/20 bg-card p-4">
         <p className="mb-2.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-          Enquire about our collection
+          Visit our showroom or enquire directly
         </p>
         <EnquiryButtons wa={wa} tel={tel} />
       </div>
@@ -286,3 +404,4 @@ export function JewelleryPage() {
     </section>
   );
 }
+
