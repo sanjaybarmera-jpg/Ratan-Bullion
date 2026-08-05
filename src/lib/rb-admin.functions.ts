@@ -781,7 +781,7 @@ export const adminUpsertJewelleryProduct = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const a = await checkAdmin(data.token); if (!a.ok) return { unauthorized: true } as any;
     const fields = [
-      "product_code", "name", "category_id", "metal", "purity",
+      "product_code", "name", "category_id", "collection_id", "product_type", "metal", "purity",
       "gross_weight", "net_weight", "making_charge", "description",
       "is_active", "sort_order",
     ] as const;
