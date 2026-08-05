@@ -3,15 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Loader2, Gem, Phone, MessageCircle, X, ImageIcon, ChevronRight } from "lucide-react";
 import {
   fetchJewelleryProducts,
+  fetchJewelleryCategories,
   productImages,
-  productMetal,
   productType,
   productCollection,
   uniqueSorted,
-  METALS,
   PRODUCT_TYPE_ORDER,
   COLLECTION_ORDER,
-  type Metal,
+  type JewelleryCategory,
   type JewelleryProduct,
 } from "@/lib/rb-jewellery";
 
@@ -168,12 +167,8 @@ function ProductDetail({
   );
 }
 
-const METAL_STYLE: Record<Metal, string> = {
-  Gold: "from-gold/25 via-gold/10 to-transparent border-gold/40",
-  Silver: "from-slate-300/20 via-slate-300/5 to-transparent border-slate-300/30",
-  Diamond: "from-sky-200/20 via-sky-200/5 to-transparent border-sky-200/30",
-  Platinum: "from-zinc-200/20 via-zinc-200/5 to-transparent border-zinc-200/30",
-};
+
+
 
 function Crumbs({ trail, onJump }: { trail: string[]; onJump: (level: number) => void }) {
   return (
@@ -230,6 +225,10 @@ export function JewelleryPage() {
     queryKey: ["rb", "jewellery", "products"],
     queryFn: fetchJewelleryProducts,
   });
+  const catQ = useQuery({
+    queryKey: ["rb", "jewellery", "categories"],
+    queryFn: fetchJewelleryCategories,
+  });
   const settingsQ = useQuery({
     queryKey: ["rb", "market_settings"],
     queryFn: fetchMarketSettings,
@@ -240,24 +239,39 @@ export function JewelleryPage() {
   const wa = waPhone(settings.whatsapp_phone || settings.dealer_phone);
   const tel = (settings.dealer_phone || settings.contact_phone || "").replace(/[^\d+]/g, "");
 
-  const [metal, setMetal] = useState<Metal | null>(null);
+  const [category, setCategory] = useState<JewelleryCategory | null>(null);
   const [type, setType] = useState<string | null>(null);
   const [collection, setCollection] = useState<string | null>(null);
   const [selected, setSelected] = useState<JewelleryProduct | null>(null);
 
   const products = prodQ.data ?? [];
+  const categories = catQ.data ?? [];
 
-  const byMetal = useMemo(
-    () => (metal ? products.filter((p) => productMetal(p) === metal) : []),
-    [products, metal],
+  const categoryCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of products) {
+      if (p.is_active === false || !p.category_id) continue;
+      m.set(p.category_id, (m.get(p.category_id) ?? 0) + 1);
+    }
+    return m;
+  }, [products]);
+
+  const visibleCategories = useMemo(
+    () => categories.filter((c) => c.is_active !== false && (categoryCounts.get(c.id) ?? 0) > 0),
+    [categories, categoryCounts],
+  );
+
+  const byCategory = useMemo(
+    () => (category ? products.filter((p) => p.category_id === category.id) : []),
+    [products, category],
   );
   const types = useMemo(
-    () => uniqueSorted(byMetal.map(productType), PRODUCT_TYPE_ORDER),
-    [byMetal],
+    () => uniqueSorted(byCategory.map(productType), PRODUCT_TYPE_ORDER),
+    [byCategory],
   );
   const byType = useMemo(
-    () => (type ? byMetal.filter((p) => productType(p) === type) : []),
-    [byMetal, type],
+    () => (type ? byCategory.filter((p) => productType(p) === type) : []),
+    [byCategory, type],
   );
   const collections = useMemo(
     () => uniqueSorted(byType.map(productCollection), COLLECTION_ORDER),
@@ -268,19 +282,10 @@ export function JewelleryPage() {
     [byType, collection],
   );
 
-  const metalCounts = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const p of products) {
-      const k = productMetal(p);
-      if (k) m.set(k, (m.get(k) ?? 0) + 1);
-    }
-    return m;
-  }, [products]);
-
-  const trail = [metal, type, collection].filter(Boolean) as string[];
+  const trail = [category?.name ?? null, type, collection].filter(Boolean) as string[];
   const jump = (level: number) => {
     if (level === 0) {
-      setMetal(null);
+      setCategory(null);
       setType(null);
       setCollection(null);
     } else if (level === 1) {
@@ -291,6 +296,9 @@ export function JewelleryPage() {
     }
   };
 
+  const loading = prodQ.isLoading || catQ.isLoading;
+  const errored = prodQ.isError || catQ.isError;
+
   return (
     <section className="space-y-4 pb-6">
       <header>
@@ -299,40 +307,60 @@ export function JewelleryPage() {
           <Gem className="h-5 w-5 text-gold" /> Jewellery Showroom
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Choose a metal, then a product type and collection to view designs.
+          Choose a category, then a product type and collection to view designs.
         </p>
       </header>
 
       {trail.length > 0 && <Crumbs trail={trail} onJump={jump} />}
 
-      {prodQ.isLoading ? (
+      {loading ? (
         <div className="flex justify-center py-10">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </div>
-      ) : prodQ.isError ? (
+      ) : errored ? (
         <div className="rounded-xl border border-destructive/40 bg-card p-5 text-sm text-destructive">
           Failed to load jewellery catalogue.
         </div>
-      ) : !metal ? (
-        <div className="grid grid-cols-2 gap-3">
-          {METALS.map((m) => (
-            <button
-              key={m}
-              onClick={() => setMetal(m)}
-              className={`flex h-36 flex-col justify-end rounded-3xl border bg-gradient-to-br p-4 text-left transition hover:brightness-125 ${METAL_STYLE[m]}`}
-            >
-              <Gem className="mb-auto h-6 w-6 text-gold" />
-              <span className="text-lg font-semibold tracking-wide text-foreground">{m}</span>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                {metalCounts.get(m) ?? 0} designs
-              </span>
-            </button>
-          ))}
-        </div>
+      ) : !category ? (
+        visibleCategories.length === 0 ? (
+          <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+            Catalogue will be updated soon.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {visibleCategories.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setCategory(c)}
+                className="relative flex h-36 flex-col justify-end overflow-hidden rounded-3xl border border-gold/40 bg-gradient-to-br from-gold/20 via-gold/5 to-transparent p-4 text-left transition hover:brightness-125"
+              >
+                {c.image_url ? (
+                  <>
+                    <img
+                      src={c.image_url}
+                      alt={c.name}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover opacity-45"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                  </>
+                ) : (
+                  <Gem className="mb-auto h-6 w-6 text-gold" />
+                )}
+                <span className="relative text-lg font-semibold tracking-wide text-foreground">
+                  {c.name}
+                </span>
+                <span className="relative text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {categoryCounts.get(c.id) ?? 0} designs
+                </span>
+              </button>
+            ))}
+          </div>
+        )
       ) : !type ? (
         types.length === 0 ? (
           <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-            {metal} collection will be updated soon.
+            {category.name} collection will be updated soon.
           </div>
         ) : (
           <div className="grid gap-2">
@@ -340,7 +368,7 @@ export function JewelleryPage() {
               <TileButton
                 key={t}
                 label={t}
-                sub={`${byMetal.filter((p) => productType(p) === t).length} designs`}
+                sub={`${byCategory.filter((p) => productType(p) === t).length} designs`}
                 onClick={() => setType(t)}
               />
             ))}
