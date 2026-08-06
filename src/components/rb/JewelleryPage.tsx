@@ -364,7 +364,8 @@ export function JewelleryPage() {
             {category.name} collection will be updated soon.
           </div>
         ) : (
-          <div className="grid gap-2">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+
             {types.map((t) => (
               <TileButton
                 key={t}
@@ -376,7 +377,7 @@ export function JewelleryPage() {
           </div>
         )
       ) : !collection ? (
-        <div className="grid gap-2">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {collections.map((c) => (
             <TileButton
               key={c}
@@ -391,14 +392,15 @@ export function JewelleryPage() {
           Designs coming soon.
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {shown.map((p) => (
             <button
               key={p.id}
               onClick={() => setSelected(p)}
               className="overflow-hidden rounded-2xl border border-gold/20 bg-card text-left transition hover:border-gold/50"
             >
-              <ProductImage src={productImages(p)[0]} alt={p.name} className="h-36 w-full" />
+              <ProductImage src={productImages(p)[0]} alt={p.name} className="h-36 md:h-44 w-full" />
+
               <div className="p-2.5">
                 <p className="truncate text-sm font-semibold text-foreground">{p.name}</p>
                 {p.product_code && (
