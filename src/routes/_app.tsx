@@ -85,9 +85,9 @@ function AppLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <div className="min-h-screen flex flex-col max-w-md mx-auto w-full relative">
+      <div className="min-h-screen flex flex-col w-full max-w-md md:max-w-7xl mx-auto relative">
         <header className="sticky top-0 z-40 bg-gradient-to-b from-background via-background/95 to-background/80 backdrop-blur-xl border-b border-gold/20">
-          <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <BrandLogo size="sm" onClick={handleLogoTap} />
               <div className="min-w-0">
@@ -100,7 +100,30 @@ function AppLayout() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5">
+
+            {/* Desktop / tablet top navigation */}
+            <nav className="hidden md:flex items-center gap-1">
+              {navItems.map(({ to, label, icon: Icon }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  activeOptions={{ exact: true }}
+                  activeProps={{
+                    className:
+                      "flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-b from-gold/20 to-gold/5 text-gold text-xs font-semibold uppercase tracking-wide transition",
+                  }}
+                  inactiveProps={{
+                    className:
+                      "flex items-center gap-1.5 px-3 py-2 rounded-xl text-muted-foreground hover:text-foreground text-xs font-semibold uppercase tracking-wide transition",
+                  }}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{label}</span>
+                </Link>
+              ))}
+            </nav>
+
+            <div className="flex items-center gap-1.5 shrink-0">
               {dealerPhone && (
                 <a
                   href={`tel:${dealerPhone}`}
@@ -111,7 +134,7 @@ function AppLayout() {
               )}
             </div>
           </div>
-          <div className="px-4 pb-2 flex items-center gap-2 text-[10px]">
+          <div className="px-4 sm:px-6 lg:px-8 pb-2 flex items-center gap-2 text-[10px]">
             <span className="flex items-center gap-1.5">
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
@@ -132,11 +155,11 @@ function AppLayout() {
           </div>
         </header>
 
-        <main className="flex-1 pb-28 px-4 pt-3">
+        <main className="flex-1 w-full pb-28 md:pb-10 px-4 sm:px-6 lg:px-8 pt-3">
           <Outlet />
         </main>
 
-        <nav className="fixed bottom-0 inset-x-0 z-40">
+        <nav className="fixed bottom-0 inset-x-0 z-40 md:hidden">
           <div className="max-w-md mx-auto px-3 pb-3">
             <div
               className="bg-card/95 backdrop-blur-xl border border-gold/30 rounded-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.6)] grid p-1.5"
