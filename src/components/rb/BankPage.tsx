@@ -193,11 +193,12 @@ export function BankPage() {
         </div>
       ) : (
         <>
-          <div className="space-y-3">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 items-start">
             {banks.map((b) => (
               <BankCard key={b.id} b={b} />
             ))}
           </div>
+
 
           {wa && <WhatsAppScreenshotButton phone={wa} />}
         </>
