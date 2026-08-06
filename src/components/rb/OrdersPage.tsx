@@ -131,7 +131,7 @@ export function OrdersPage() {
           <p className="mt-3 text-sm text-muted-foreground">No orders yet.</p>
         </div>
       ) : (
-        <div className="space-y-2">{orders.map((o) => <OrderCard key={o.id} o={o} />)}</div>
+        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">{orders.map((o) => <OrderCard key={o.id} o={o} />)}</div>
       )}
     </section>
   );

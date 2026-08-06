@@ -327,13 +327,14 @@ export function JewelleryPage() {
             Catalogue will be updated soon.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {visibleCategories.map((c) => (
               <button
                 key={c.id}
                 onClick={() => setCategory(c)}
-                className="relative flex h-36 flex-col justify-end overflow-hidden rounded-3xl border border-gold/40 bg-gradient-to-br from-gold/20 via-gold/5 to-transparent p-4 text-left transition hover:brightness-125"
+                className="relative flex h-36 md:h-44 flex-col justify-end overflow-hidden rounded-3xl border border-gold/40 bg-gradient-to-br from-gold/20 via-gold/5 to-transparent p-4 text-left transition hover:brightness-125"
               >
+
                 {c.image_url ? (
                   <>
                     <img
