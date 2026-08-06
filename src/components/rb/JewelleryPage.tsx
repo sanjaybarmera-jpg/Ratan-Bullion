@@ -99,8 +99,9 @@ function ProductDetail({
   const [active, setActive] = useState(0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl border border-gold/30 bg-card p-4 pb-8">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/70 backdrop-blur-sm md:p-6">
+      <div className="w-full max-w-md md:max-w-2xl max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-3xl border border-gold/30 bg-card p-4 pb-8 md:pb-6">
+
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="truncate text-lg font-semibold text-foreground">{product.name}</h3>
@@ -327,13 +328,14 @@ export function JewelleryPage() {
             Catalogue will be updated soon.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {visibleCategories.map((c) => (
               <button
                 key={c.id}
                 onClick={() => setCategory(c)}
-                className="relative flex h-36 flex-col justify-end overflow-hidden rounded-3xl border border-gold/40 bg-gradient-to-br from-gold/20 via-gold/5 to-transparent p-4 text-left transition hover:brightness-125"
+                className="relative flex h-36 md:h-44 flex-col justify-end overflow-hidden rounded-3xl border border-gold/40 bg-gradient-to-br from-gold/20 via-gold/5 to-transparent p-4 text-left transition hover:brightness-125"
               >
+
                 {c.image_url ? (
                   <>
                     <img
@@ -363,7 +365,8 @@ export function JewelleryPage() {
             {category.name} collection will be updated soon.
           </div>
         ) : (
-          <div className="grid gap-2">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+
             {types.map((t) => (
               <TileButton
                 key={t}
@@ -375,7 +378,7 @@ export function JewelleryPage() {
           </div>
         )
       ) : !collection ? (
-        <div className="grid gap-2">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {collections.map((c) => (
             <TileButton
               key={c}
@@ -390,14 +393,15 @@ export function JewelleryPage() {
           Designs coming soon.
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {shown.map((p) => (
             <button
               key={p.id}
               onClick={() => setSelected(p)}
               className="overflow-hidden rounded-2xl border border-gold/20 bg-card text-left transition hover:border-gold/50"
             >
-              <ProductImage src={productImages(p)[0]} alt={p.name} className="h-36 w-full" />
+              <ProductImage src={productImages(p)[0]} alt={p.name} className="h-36 md:h-44 w-full" />
+
               <div className="p-2.5">
                 <p className="truncate text-sm font-semibold text-foreground">{p.name}</p>
                 {p.product_code && (

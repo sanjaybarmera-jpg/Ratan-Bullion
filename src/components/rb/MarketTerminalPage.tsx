@@ -441,7 +441,7 @@ export function MarketTerminalPage() {
       </div>
 
       {tab === "overview" && (
-        <>
+        <div className="grid gap-3 lg:grid-cols-3">
           <Section title="Market Statistics">
             <div className="grid grid-cols-3 gap-1.5">
               <Stat label="Open" value={fmt(a.open, metalMeta.dp)} />
@@ -487,8 +487,9 @@ export function MarketTerminalPage() {
               />
             </div>
           </Section>
-        </>
+        </div>
       )}
+
 
       {tab === "chart" && (
         <div className="space-y-2">
@@ -556,7 +557,8 @@ export function MarketTerminalPage() {
       )}
 
       {tab === "analysis" && (
-        <>
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 items-start">
+
           <Section title="Market Analysis">
             <div className="grid grid-cols-3 gap-1.5">
               <Stat
@@ -617,8 +619,9 @@ export function MarketTerminalPage() {
               />
             </div>
           </Section>
-        </>
+        </div>
       )}
+
 
       {tab === "news" && (
         <>

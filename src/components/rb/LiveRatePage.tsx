@@ -404,7 +404,7 @@ export function LiveRatePage() {
       )}
 
       {/* TOP USD */}
-      <div className="grid grid-cols-3 gap-1.5 transition-opacity">
+      <div className="grid grid-cols-3 gap-1.5 md:gap-3 transition-opacity">
         {usdTop.map((m) => {
           const val = m.r?.mcx_ltp ?? m.r?.sell_price ?? m.r?.buy_price ?? null;
           const isUsdGold = m.key === "usd_gold";
@@ -432,7 +432,7 @@ export function LiveRatePage() {
       </div>
 
       {isApproved && (
-        <>
+        <div className="grid gap-3 md:grid-cols-2">
           {/* METAL board */}
           <MetalBoard
             heading="Metal"
@@ -456,12 +456,13 @@ export function LiveRatePage() {
             onOrder={handleOrder}
           />
 
-        </>
+        </div>
       )}
+
 
       {/* MCX Futures */}
       <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground px-1 pt-0.5">MCX Futures</p>
-      <div className="grid grid-cols-2 gap-1.5 transition-opacity">
+      <div className="grid grid-cols-2 gap-1.5 md:gap-3 lg:grid-cols-4 transition-opacity">
         {mcxBottom.map((m) => {
           const ltp = m.r?.mcx_ltp ?? null;
           const exp = expiryFor(m.key, m.r);
@@ -505,7 +506,7 @@ export function LiveRatePage() {
               href={waHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="fixed left-4 bottom-[82px] z-50 w-12 h-12 rounded-full border border-emerald-500/40 bg-emerald-500 shadow-lg flex items-center justify-center hover:bg-emerald-600 active:scale-95 transition"
+              className="fixed left-4 bottom-[82px] md:bottom-6 md:left-6 z-50 w-12 h-12 rounded-full border border-emerald-500/40 bg-emerald-500 shadow-lg flex items-center justify-center hover:bg-emerald-600 active:scale-95 transition"
               aria-label="WhatsApp dealer"
             >
               <MessageCircle className="h-6 w-6 text-white" />
@@ -514,7 +515,7 @@ export function LiveRatePage() {
           {telHref && (
             <a
               href={telHref}
-              className="fixed right-4 bottom-[82px] z-50 w-12 h-12 rounded-full border border-gold/40 bg-gold shadow-lg flex items-center justify-center hover:brightness-110 active:scale-95 transition"
+              className="fixed right-4 bottom-[82px] md:bottom-6 md:right-6 z-50 w-12 h-12 rounded-full border border-gold/40 bg-gold shadow-lg flex items-center justify-center hover:brightness-110 active:scale-95 transition"
               aria-label="Call dealer"
             >
               <Phone className="h-6 w-6 text-primary-foreground" />
