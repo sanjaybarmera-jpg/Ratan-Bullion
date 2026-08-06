@@ -432,7 +432,7 @@ export function LiveRatePage() {
       </div>
 
       {isApproved && (
-        <>
+        <div className="grid gap-3 md:grid-cols-2">
           {/* METAL board */}
           <MetalBoard
             heading="Metal"
@@ -456,8 +456,9 @@ export function LiveRatePage() {
             onOrder={handleOrder}
           />
 
-        </>
+        </div>
       )}
+
 
       {/* MCX Futures */}
       <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground px-1 pt-0.5">MCX Futures</p>
