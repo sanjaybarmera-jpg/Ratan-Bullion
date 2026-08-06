@@ -99,8 +99,9 @@ function ProductDetail({
   const [active, setActive] = useState(0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl border border-gold/30 bg-card p-4 pb-8">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/70 backdrop-blur-sm md:p-6">
+      <div className="w-full max-w-md md:max-w-2xl max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-3xl border border-gold/30 bg-card p-4 pb-8 md:pb-6">
+
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="truncate text-lg font-semibold text-foreground">{product.name}</h3>
