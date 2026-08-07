@@ -303,7 +303,6 @@ export function JewelleryPage() {
   return (
     <section className="space-y-4 pb-6">
       <header>
-        <p className="text-xs uppercase tracking-wider text-primary/80">Ratan Bullion</p>
         <h2 className="mt-1 flex items-center gap-2 text-2xl font-semibold">
           <Gem className="h-5 w-5 text-gold" /> Jewellery Showroom
         </h2>
