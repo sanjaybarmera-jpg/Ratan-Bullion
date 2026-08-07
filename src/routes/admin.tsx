@@ -570,5 +570,6 @@ function CustomersPanel({
         })}
         </div>
       )}
+    </div>
   );
 }
