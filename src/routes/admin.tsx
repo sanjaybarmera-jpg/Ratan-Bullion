@@ -211,58 +211,136 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
     router.navigate({ to: "/" });
   }
 
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border bg-card/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-md items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-primary" />
-            <h1 className="text-sm font-semibold text-primary">Admin Panel</h1>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground"
-          >
-            <LogOut className="h-3.5 w-3.5" /> Logout
-          </button>
-        </div>
-        <div className="mx-auto flex w-full max-w-md gap-1 overflow-x-auto px-4 pb-2 no-scrollbar">
-          <TabBtn active={tab === "customers"} onClick={() => setTab("customers")} icon={Users} label="Customers" />
-          <TabBtn active={tab === "rates"} onClick={() => setTab("rates")} icon={LineChart} label="Rates" />
-          <TabBtn active={tab === "orders"} onClick={() => setTab("orders")} icon={ClipboardList} label="Orders" />
-          <TabBtn active={tab === "bank"} onClick={() => setTab("bank")} icon={Landmark} label="Bank" />
-          <TabBtn active={tab === "news"} onClick={() => setTab("news")} icon={Newspaper} label="News" />
-          <TabBtn active={tab === "jewellery"} onClick={() => setTab("jewellery")} icon={Gem} label="Jewellery" />
-          <TabBtn active={tab === "settings"} onClick={() => setTab("settings")} icon={SettingsIcon} label="Settings" />
-        </div>
-      </header>
+  const { theme, toggle, themeClass } = useAdminTheme();
+  const [navOpen, setNavOpen] = useState(false);
 
-      <main className="mx-auto w-full max-w-md px-4 py-4 space-y-3">
-        {tab === "customers" ? (
-          <CustomersPanel
-            customers={(customersQ.data?.customers ?? []) as Customer[]}
-            devices={(devicesQ.data?.devices ?? []) as DeviceRow[]}
-            loading={customersQ.isLoading || devicesQ.isLoading}
-            error={(customersQ.error as Error | null) ?? (devicesQ.error as Error | null) ?? null}
-            onToggleActive={(id, active) => setActive.mutate({ id, active })}
-            onToggleVip={(id, vip) => setVip.mutate({ id, vip })}
-            onToggleDevice={(id, approved) => setApproved.mutate({ id, approved })}
-            busy={setActive.isPending || setVip.isPending || setApproved.isPending}
-          />
-        ) : tab === "rates" ? (
-          <RatesTab token={token} onUnauthorized={onLogout} />
-        ) : tab === "orders" ? (
-          <OrdersTab token={token} onUnauthorized={onLogout} />
-        ) : tab === "bank" ? (
-          <BankTab token={token} onUnauthorized={onLogout} />
-        ) : tab === "news" ? (
-          <NewsTab token={token} onUnauthorized={onLogout} />
-        ) : tab === "jewellery" ? (
-          <JewelleryTab token={token} onUnauthorized={onLogout} />
-        ) : (
-          <SettingsTab token={token} onUnauthorized={onLogout} />
+  const NAV: { key: Tab; label: string; icon: typeof Users }[] = [
+    { key: "customers", label: "Customers", icon: Users },
+    { key: "rates", label: "Rates", icon: LineChart },
+    { key: "orders", label: "Orders", icon: ClipboardList },
+    { key: "bank", label: "Bank", icon: Landmark },
+    { key: "news", label: "News", icon: Newspaper },
+    { key: "jewellery", label: "Jewellery", icon: Gem },
+    { key: "settings", label: "Settings", icon: SettingsIcon },
+  ];
+
+  const activeLabel = NAV.find((n) => n.key === tab)?.label ?? "Admin";
+
+  const navList = (
+    <nav className="flex flex-col gap-1 p-3">
+      {NAV.map((n) => (
+        <NavBtn
+          key={n.key}
+          active={tab === n.key}
+          onClick={() => { setTab(n.key); setNavOpen(false); }}
+          icon={n.icon}
+          label={n.label}
+        />
+      ))}
+    </nav>
+  );
+
+  return (
+    <div className={`min-h-screen bg-background text-foreground ${themeClass}`}>
+      <div className="flex min-h-screen w-full">
+        {/* Fixed sidebar — desktop */}
+        <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-card">
+          <div className="flex items-center gap-2 border-b border-border px-4 py-4">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-primary">Ratan Bullion</p>
+              <p className="truncate text-[11px] text-muted-foreground">Admin CMS</p>
+            </div>
+          </div>
+          {navList}
+          <div className="mt-auto p-3">
+            <button
+              onClick={handleLogout}
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-border px-3 py-2 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="h-3.5 w-3.5" /> Logout
+            </button>
+          </div>
+        </aside>
+
+        {/* Mobile / tablet drawer */}
+        {navOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <button
+              aria-label="Close menu"
+              onClick={() => setNavOpen(false)}
+              className="absolute inset-0 bg-black/50"
+            />
+            <div className="absolute inset-y-0 left-0 w-64 border-r border-border bg-card shadow-xl">
+              <div className="flex items-center justify-between border-b border-border px-4 py-4">
+                <span className="text-sm font-semibold text-primary">Admin CMS</span>
+                <button onClick={() => setNavOpen(false)} className="text-muted-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              {navList}
+            </div>
+          </div>
         )}
-      </main>
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-30 border-b border-border bg-card/90 backdrop-blur">
+            <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
+              <button
+                onClick={() => setNavOpen(true)}
+                className="rounded-md border border-border p-1.5 text-muted-foreground lg:hidden"
+                aria-label="Open menu"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+              <h1 className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground sm:text-base">
+                {activeLabel}
+              </h1>
+              <button
+                onClick={toggle}
+                aria-label="Toggle theme"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground"
+              >
+                {theme === "dark" ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
+                <span className="hidden sm:inline">{theme === "dark" ? "Dark" : "Light"}</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground lg:hidden"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </header>
+
+          <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-4 sm:px-6 lg:px-8 lg:py-6 space-y-3">
+            {tab === "customers" ? (
+              <CustomersPanel
+                customers={(customersQ.data?.customers ?? []) as Customer[]}
+                devices={(devicesQ.data?.devices ?? []) as DeviceRow[]}
+                loading={customersQ.isLoading || devicesQ.isLoading}
+                error={(customersQ.error as Error | null) ?? (devicesQ.error as Error | null) ?? null}
+                onToggleActive={(id, active) => setActive.mutate({ id, active })}
+                onToggleVip={(id, vip) => setVip.mutate({ id, vip })}
+                onToggleDevice={(id, approved) => setApproved.mutate({ id, approved })}
+                busy={setActive.isPending || setVip.isPending || setApproved.isPending}
+              />
+            ) : tab === "rates" ? (
+              <RatesTab token={token} onUnauthorized={onLogout} />
+            ) : tab === "orders" ? (
+              <OrdersTab token={token} onUnauthorized={onLogout} />
+            ) : tab === "bank" ? (
+              <BankTab token={token} onUnauthorized={onLogout} />
+            ) : tab === "news" ? (
+              <NewsTab token={token} onUnauthorized={onLogout} />
+            ) : tab === "jewellery" ? (
+              <JewelleryTab token={token} onUnauthorized={onLogout} />
+            ) : (
+              <SettingsTab token={token} onUnauthorized={onLogout} />
+            )}
+          </main>
+        </div>
+      </div>
     </div>
   );
 }
@@ -271,23 +349,24 @@ function Center({ children }: { children: React.ReactNode }) {
   return <div className="flex items-center justify-center py-10">{children}</div>;
 }
 
-function TabBtn({
+function NavBtn({
   active, onClick, icon: Icon, label,
 }: { active: boolean; onClick: () => void; icon: typeof Users; label: string }) {
   return (
     <button
       onClick={onClick}
       className={
-        "flex-1 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium border " +
+        "inline-flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium border transition " +
         (active
           ? "border-primary/40 bg-primary/10 text-primary"
-          : "border-border text-muted-foreground hover:text-foreground")
+          : "border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground")
       }
     >
-      <Icon className="h-3.5 w-3.5" /> {label}
+      <Icon className="h-4 w-4 shrink-0" /> {label}
     </button>
   );
 }
+
 
 type Filter = "all" | "pending" | "approved" | "vip" | "device_pending";
 
