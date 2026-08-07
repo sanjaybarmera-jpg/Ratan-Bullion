@@ -475,9 +475,11 @@ function ProductsSection({ token, onUnauthorized }: { token: string; onUnauthori
       ) : (q.data?.products ?? []).length === 0 ? (
         <p className="text-sm text-muted-foreground">No products yet.</p>
       ) : (
-        q.data!.products.map((p) => (
-          <ProductEditor key={p.id} token={token} categories={categories} initial={p} onSaved={() => {}} />
-        ))
+        <div className="grid grid-cols-1 gap-2 xl:grid-cols-2 items-start">
+          {q.data!.products.map((p) => (
+            <ProductEditor key={p.id} token={token} categories={categories} initial={p} onSaved={() => {}} />
+          ))}
+        </div>
       )}
     </div>
   );
