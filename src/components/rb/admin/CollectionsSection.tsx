@@ -523,7 +523,7 @@ function CollectionDetail({
       ) : products.length === 0 ? (
         <p className="py-4 text-center text-xs text-muted-foreground">No products in this collection yet.</p>
       ) : (
-        <div className="space-y-1.5">
+        <div className="grid grid-cols-1 gap-1.5 xl:grid-cols-2 items-start">
           {products.map((p, i) => (
             <ProductCard
               key={p.id}
