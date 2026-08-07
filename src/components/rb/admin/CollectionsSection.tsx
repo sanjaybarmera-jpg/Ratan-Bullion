@@ -93,7 +93,7 @@ function CollectionForm({
 
   return (
     <div className="rounded-lg border border-border bg-card p-3 space-y-2">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
         <Field label="Metal / Category">
           <select
             value={d.category_id ?? ""}
@@ -232,7 +232,7 @@ function ProductCard({
 
       {open && (
         <div className="space-y-2 border-t border-border px-2 py-2">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
             <Field label="Product Code">
               <input value={d.product_code ?? ""} onChange={(e) => setD({ ...d, product_code: e.target.value })} className={inputCls} />
             </Field>
@@ -446,7 +446,7 @@ function CollectionDetail({
           void uploadFiles(Array.from(e.dataTransfer.files ?? []));
         }}
         className={
-          "rounded-lg border-2 border-dashed p-4 text-center " +
+          "rounded-lg border-2 border-dashed p-4 lg:p-10 text-center " +
           (dragOver ? "border-primary bg-primary/5" : "border-border bg-background/40")
         }
       >
