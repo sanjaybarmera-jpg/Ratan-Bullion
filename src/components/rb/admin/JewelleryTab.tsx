@@ -117,7 +117,7 @@ function CategoryEditor({ token, initial, onSaved }: { token: string; initial: C
           <Field label="Name">
             <input value={d.name ?? ""} onChange={(e) => setD({ ...d, name: e.target.value })} className={inputCls} />
           </Field>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
             <Field label="Slug">
               <input value={d.slug ?? ""} onChange={(e) => setD({ ...d, slug: e.target.value })} className={inputCls} />
             </Field>
@@ -209,7 +209,9 @@ function CategoriesSection({ token, onUnauthorized }: { token: string; onUnautho
       ) : (q.data?.categories ?? []).length === 0 ? (
         <p className="text-sm text-muted-foreground">No categories yet.</p>
       ) : (
-        q.data!.categories.map((c) => <CategoryEditor key={c.id} token={token} initial={c} onSaved={() => {}} />)
+        <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 2xl:grid-cols-3 items-start">
+          {q.data!.categories.map((c) => <CategoryEditor key={c.id} token={token} initial={c} onSaved={() => {}} />)}
+        </div>
       )}
     </div>
   );
@@ -289,7 +291,7 @@ function ProductImages({ token, productId, images }: { token: string; productId:
       {sorted.length === 0 ? (
         <p className="text-[11px] text-muted-foreground">No images uploaded.</p>
       ) : (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 md:grid-cols-4 xl:grid-cols-6">
           {sorted.map((img, i) => (
             <div key={img.id} className="relative overflow-hidden rounded-md border border-border">
               <img src={img.image_url ?? ""} alt={img.alt_text ?? "Product"} className="h-20 w-full object-cover" />
@@ -346,7 +348,7 @@ function ProductEditor({
 
   return (
     <div className="rounded-lg border border-border bg-card p-3 space-y-2">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
         <Field label="Product Code">
           <input value={d.product_code ?? ""} onChange={(e) => setD({ ...d, product_code: e.target.value })} className={inputCls} />
         </Field>
@@ -473,9 +475,11 @@ function ProductsSection({ token, onUnauthorized }: { token: string; onUnauthori
       ) : (q.data?.products ?? []).length === 0 ? (
         <p className="text-sm text-muted-foreground">No products yet.</p>
       ) : (
-        q.data!.products.map((p) => (
-          <ProductEditor key={p.id} token={token} categories={categories} initial={p} onSaved={() => {}} />
-        ))
+        <div className="grid grid-cols-1 gap-2 xl:grid-cols-2 items-start">
+          {q.data!.products.map((p) => (
+            <ProductEditor key={p.id} token={token} categories={categories} initial={p} onSaved={() => {}} />
+          ))}
+        </div>
       )}
     </div>
   );

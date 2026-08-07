@@ -93,7 +93,7 @@ function CollectionForm({
 
   return (
     <div className="rounded-lg border border-border bg-card p-3 space-y-2">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
         <Field label="Metal / Category">
           <select
             value={d.category_id ?? ""}
@@ -232,7 +232,7 @@ function ProductCard({
 
       {open && (
         <div className="space-y-2 border-t border-border px-2 py-2">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
             <Field label="Product Code">
               <input value={d.product_code ?? ""} onChange={(e) => setD({ ...d, product_code: e.target.value })} className={inputCls} />
             </Field>
@@ -446,7 +446,7 @@ function CollectionDetail({
           void uploadFiles(Array.from(e.dataTransfer.files ?? []));
         }}
         className={
-          "rounded-lg border-2 border-dashed p-4 text-center " +
+          "rounded-lg border-2 border-dashed p-4 lg:p-10 text-center " +
           (dragOver ? "border-primary bg-primary/5" : "border-border bg-background/40")
         }
       >
@@ -523,7 +523,7 @@ function CollectionDetail({
       ) : products.length === 0 ? (
         <p className="py-4 text-center text-xs text-muted-foreground">No products in this collection yet.</p>
       ) : (
-        <div className="space-y-1.5">
+        <div className="grid grid-cols-1 gap-1.5 xl:grid-cols-2 items-start">
           {products.map((p, i) => (
             <ProductCard
               key={p.id}
@@ -634,6 +634,7 @@ export function CollectionsSection({ token, onUnauthorized }: { token: string; o
         grouped.map(([heading, rows]) => (
           <div key={heading} className="space-y-1">
             <p className="pt-1 text-[10px] uppercase tracking-wider text-muted-foreground">{heading}</p>
+            <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {rows.map((c) => (
               <button
                 key={c.id}
@@ -652,6 +653,7 @@ export function CollectionsSection({ token, onUnauthorized }: { token: string; o
                 <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
               </button>
             ))}
+            </div>
           </div>
         ))
       )}
