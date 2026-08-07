@@ -634,6 +634,7 @@ export function CollectionsSection({ token, onUnauthorized }: { token: string; o
         grouped.map(([heading, rows]) => (
           <div key={heading} className="space-y-1">
             <p className="pt-1 text-[10px] uppercase tracking-wider text-muted-foreground">{heading}</p>
+            <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {rows.map((c) => (
               <button
                 key={c.id}
