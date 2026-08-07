@@ -114,8 +114,7 @@ export function OrdersPage() {
   return (
     <section className="space-y-4">
       <div>
-      
-        <h2 className="text-2xl font-semibold mt-1">My Orders</h2>
+       <h2 className="text-2xl font-semibold mt-1">My Orders</h2>
       </div>
 
       {q.isLoading ? (
