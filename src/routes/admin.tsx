@@ -479,7 +479,8 @@ function CustomersPanel({
       {filtered.length === 0 ? (
         <p className="py-6 text-center text-xs text-muted-foreground">No customers match.</p>
       ) : (
-        filtered.map((c) => {
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 2xl:grid-cols-3 items-start">
+        {filtered.map((c) => {
           const devs = grouped[c.id] ?? [];
           const open = !!expanded[c.id];
           const pendingDevCount = devs.filter((d) => !d.is_approved).length;
