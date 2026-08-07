@@ -209,7 +209,9 @@ function CategoriesSection({ token, onUnauthorized }: { token: string; onUnautho
       ) : (q.data?.categories ?? []).length === 0 ? (
         <p className="text-sm text-muted-foreground">No categories yet.</p>
       ) : (
-        q.data!.categories.map((c) => <CategoryEditor key={c.id} token={token} initial={c} onSaved={() => {}} />)
+        <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 2xl:grid-cols-3 items-start">
+          {q.data!.categories.map((c) => <CategoryEditor key={c.id} token={token} initial={c} onSaved={() => {}} />)}
+        </div>
       )}
     </div>
   );
