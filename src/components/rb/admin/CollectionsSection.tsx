@@ -653,6 +653,7 @@ export function CollectionsSection({ token, onUnauthorized }: { token: string; o
                 <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
               </button>
             ))}
+            </div>
           </div>
         ))
       )}
