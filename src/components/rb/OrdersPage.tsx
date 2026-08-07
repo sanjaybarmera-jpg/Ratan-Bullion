@@ -114,7 +114,7 @@ export function OrdersPage() {
   return (
     <section className="space-y-4">
       <div>
-        <p className="text-xs uppercase tracking-wider text-primary/80">Ratan Bullion</p>
+      
         <h2 className="text-2xl font-semibold mt-1">My Orders</h2>
       </div>
 
