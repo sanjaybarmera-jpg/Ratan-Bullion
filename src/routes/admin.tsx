@@ -567,8 +567,8 @@ function CustomersPanel({
               )}
             </div>
           );
-        })
+        })}
+        </div>
       )}
-    </div>
   );
 }
