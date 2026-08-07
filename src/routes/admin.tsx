@@ -2,7 +2,8 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, LogOut, ShieldCheck, Smartphone, Users, LineChart, Landmark, Newspaper, ClipboardList, Gem, Settings as SettingsIcon, Search, Crown, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, LogOut, ShieldCheck, Smartphone, Users, LineChart, Landmark, Newspaper, ClipboardList, Gem, Settings as SettingsIcon, Search, Crown, ChevronDown, ChevronRight, Menu, X, Moon, Sun } from "lucide-react";
+import { useAdminTheme } from "@/hooks/use-admin-theme";
 import {
   adminListCustomers,
   adminListDevices,
