@@ -100,11 +100,11 @@ function ProductDetail({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/70 backdrop-blur-sm md:p-6">
-      <div className="w-full max-w-md md:max-w-2xl max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-3xl border border-gold/30 bg-card p-4 pb-8 md:pb-6">
+      <div className="w-full max-w-md md:max-w-4xl max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-3xl border border-gold/30 bg-card p-4 md:p-6 pb-8 md:pb-6">
 
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="truncate text-lg font-semibold text-foreground">{product.name}</h3>
+            <h3 className="truncate text-lg md:text-2xl font-semibold text-foreground">{product.name}</h3>
             {product.product_code && (
               <p className="text-[11px] font-medium tracking-wide text-gold">
                 Code {product.product_code}
@@ -120,53 +120,60 @@ function ProductDetail({
           </button>
         </div>
 
-        <ProductImage
-          src={imgs[active]}
-          alt={product.name}
-          className="mt-3 h-64 w-full rounded-2xl border border-gold/20"
-        />
-        {imgs.length > 1 && (
-          <div className="mt-2 flex gap-2 overflow-x-auto">
-            {imgs.map((src, i) => (
-              <button
-                key={src + i}
-                onClick={() => setActive(i)}
-                className={`h-14 w-14 shrink-0 overflow-hidden rounded-lg border ${
-                  i === active ? "border-gold" : "border-border"
-                }`}
-              >
-                <ProductImage src={src} alt={`${product.name} ${i + 1}`} className="h-full w-full" />
-              </button>
-            ))}
+        <div className="mt-3 grid gap-4 md:grid-cols-2 md:gap-6">
+          <div className="min-w-0">
+            <ProductImage
+              src={imgs[active]}
+              alt={product.name}
+              className="h-64 md:h-[26rem] w-full rounded-2xl border border-gold/20"
+            />
+            {imgs.length > 1 && (
+              <div className="mt-2 flex gap-2 overflow-x-auto">
+                {imgs.map((src, i) => (
+                  <button
+                    key={src + i}
+                    onClick={() => setActive(i)}
+                    className={`h-14 w-14 shrink-0 overflow-hidden rounded-lg border ${
+                      i === active ? "border-gold" : "border-border"
+                    }`}
+                  >
+                    <ProductImage src={src} alt={`${product.name} ${i + 1}`} className="h-full w-full" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        )}
 
-        {product.description && (
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{product.description}</p>
-        )}
+          <div className="min-w-0">
+            {product.description && (
+              <p className="text-sm leading-relaxed text-muted-foreground">{product.description}</p>
+            )}
 
-        <div className="mt-3 divide-y divide-border/60 rounded-2xl border border-border bg-background/40 px-3">
-          <Spec label="Metal" value={product.metal} />
-          <Spec label="Purity" value={product.purity} />
-          <Spec
-            label="Gross Wt"
-            value={product.gross_weight != null ? `${product.gross_weight} g` : null}
-          />
-          <Spec
-            label="Net Wt"
-            value={product.net_weight != null ? `${product.net_weight} g` : null}
-          />
-          <Spec label="Making" value={product.making_charge} />
-          <Spec label="Product Code" value={product.product_code} />
-        </div>
+            <div className="mt-3 divide-y divide-border/60 rounded-2xl border border-border bg-background/40 px-3">
+              <Spec label="Metal" value={product.metal} />
+              <Spec label="Purity" value={product.purity} />
+              <Spec
+                label="Gross Wt"
+                value={product.gross_weight != null ? `${product.gross_weight} g` : null}
+              />
+              <Spec
+                label="Net Wt"
+                value={product.net_weight != null ? `${product.net_weight} g` : null}
+              />
+              <Spec label="Making" value={product.making_charge} />
+              <Spec label="Product Code" value={product.product_code} />
+            </div>
 
-        <div className="mt-4">
-          <EnquiryButtons wa={wa} tel={tel} product={product} />
+            <div className="mt-4">
+              <EnquiryButtons wa={wa} tel={tel} product={product} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
 
 
 
