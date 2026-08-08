@@ -36,10 +36,15 @@ export type JewelleryProduct = {
   jewellery_images?: JewelleryImage[] | null;
 };
 
+const CATEGORY_COLUMNS = "id,name,slug,image_url,sort_order,is_active";
+const PRODUCT_COLUMNS =
+  "id,category_id,name,product_code,description,metal,purity,gross_weight,net_weight,making_charge,sku,is_active,sort_order";
+const IMAGE_COLUMNS = "id,product_id,image_url,alt_text,sort_order,is_active";
+
 export async function fetchJewelleryCategories(): Promise<JewelleryCategory[]> {
   const { data, error } = await rbSupabase
     .from("jewellery_categories")
-    .select("*")
+    .select(CATEGORY_COLUMNS)
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
   if (error) throw new Error(error.message);
@@ -49,11 +54,11 @@ export async function fetchJewelleryCategories(): Promise<JewelleryCategory[]> {
 export async function fetchJewelleryProducts(): Promise<JewelleryProduct[]> {
   const { data, error } = await rbSupabase
     .from("jewellery_products")
-    .select("*, jewellery_images(*)")
+    .select(`${PRODUCT_COLUMNS}, jewellery_images(${IMAGE_COLUMNS})`)
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
   if (error) throw new Error(error.message);
-  return (data ?? []) as JewelleryProduct[];
+  return (data ?? []) as unknown as JewelleryProduct[];
 }
 
 /** Gallery comes exclusively from the jewellery_images table. */
