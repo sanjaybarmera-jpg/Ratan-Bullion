@@ -9,12 +9,15 @@ import { fetchMarketSettings } from "@/lib/rb-rates";
 import { getMcxMarketStatus } from "@/lib/mcx-market-status";
 import { Toaster } from "@/components/ui/sonner";
 import { BrandLogo } from "@/components/rb/BrandMark";
+import { AppThemeProvider } from "@/hooks/use-app-theme";
 
 export const Route = createFileRoute("/_app")({
   component: () => (
-    <RbAuthProvider>
-      <AppGate />
-    </RbAuthProvider>
+    <AppThemeProvider>
+      <RbAuthProvider>
+        <AppGate />
+      </RbAuthProvider>
+    </AppThemeProvider>
   ),
 });
 

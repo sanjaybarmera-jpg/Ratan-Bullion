@@ -146,9 +146,44 @@
 }
 
 /*
+ * Customer app light theme. Applied by toggling `.rb-light` on <html> from the
+ * More > Appearance switcher. Without it the app keeps its premium dark look.
+ */
+.rb-light {
+  --background: oklch(0.985 0.004 90);
+  --foreground: oklch(0.2 0.012 70);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.012 70);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.012 70);
+  --primary: oklch(0.6 0.12 78);
+  --primary-foreground: oklch(0.99 0.01 90);
+  --secondary: oklch(0.95 0.006 90);
+  --secondary-foreground: oklch(0.24 0.012 70);
+  --muted: oklch(0.95 0.005 90);
+  --muted-foreground: oklch(0.46 0.02 75);
+  --accent: oklch(0.6 0.12 78);
+  --accent-foreground: oklch(0.99 0.01 90);
+  --destructive: oklch(0.55 0.2 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.9 0.008 85);
+  --input: oklch(0.92 0.008 85);
+  --ring: oklch(0.6 0.12 78);
+  --gold: oklch(0.6 0.12 78);
+  --gold-soft: oklch(0.7 0.11 80);
+  --bull: oklch(0.52 0.16 148);
+  --bear: oklch(0.55 0.2 27);
+  --gradient-gold: linear-gradient(135deg, oklch(0.72 0.12 88) 0%, oklch(0.56 0.12 74) 100%);
+  --shadow-gold: 0 8px 28px -10px oklch(0.6 0.12 78 / 0.35);
+  --shadow-card: 0 2px 12px -4px oklch(0 0 0 / 0.1);
+  color-scheme: light;
+}
+
+/*
  * Admin-only light theme. Applied by adding `.rb-admin-light` on the admin
  * shell wrapper. The customer app never receives this class and stays dark.
  */
+
 .rb-admin-light {
   --background: oklch(0.985 0.002 90);
   --foreground: oklch(0.22 0.01 70);

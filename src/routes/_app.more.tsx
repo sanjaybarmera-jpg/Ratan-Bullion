@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useRbAuth } from "@/components/rb/RbAuthContext";
-import { LogOut, MoreHorizontal, Phone, Building2, Landmark, ChevronRight } from "lucide-react";
+import { LogOut, MoreHorizontal, Phone, Building2, Landmark, ChevronRight, Sun, Moon, Check } from "lucide-react";
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { fetchOtherFirms } from "@/lib/rb-firms.functions";
 
 export const Route = createFileRoute("/_app/more")({
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/_app/more")({
 
 function MorePage() {
   const auth = useRbAuth();
+  const { theme, setTheme } = useAppTheme();
 
   const fetchFirms = useServerFn(fetchOtherFirms);
   const settingsQ = useQuery({
@@ -54,6 +56,35 @@ function MorePage() {
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Profile</p>
           <p className="mt-1 text-sm text-card-foreground">{auth.name || "—"}</p>
           <p className="text-xs text-muted-foreground">{auth.mobile || "—"}</p>
+        </section>
+
+        <section className="rounded-lg border border-border bg-card p-4">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">Appearance</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {([
+              { key: "light", label: "Light", Icon: Sun },
+              { key: "dark", label: "Dark", Icon: Moon },
+            ] as const).map(({ key, label, Icon }) => {
+              const active = theme === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => setTheme(key)}
+                  aria-pressed={active}
+                  className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition ${
+                    active
+                      ? "border-gold bg-gold/10 text-gold"
+                      : "border-border bg-background/40 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Icon className="h-4 w-4" /> {label}
+                  </span>
+                  {active && <Check className="h-4 w-4" />}
+                </button>
+              );
+            })}
+          </div>
         </section>
 
         <section className="rounded-lg border border-border bg-card p-2">
