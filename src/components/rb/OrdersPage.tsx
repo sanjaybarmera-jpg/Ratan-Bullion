@@ -100,9 +100,7 @@ export function OrdersPage() {
         : "Register or wait for dealer approval to view your orders.";
     return (
       <section className="space-y-4">
-        <div>
-          <h2 className="text-2xl font-semibold mt-1">My Orders</h2>
-        </div>
+        <h2 className="text-2xl font-semibold">My Orders</h2>
         <div className="rounded-xl border border-gold/25 bg-card p-6 text-center">
           <ClipboardList className="mx-auto h-8 w-8 text-muted-foreground/40" />
           <p className="mt-3 text-sm text-foreground/90">{msg}</p>
@@ -113,10 +111,7 @@ export function OrdersPage() {
 
   return (
     <section className="space-y-4">
-      <div>
-        <p className="text-xs uppercase tracking-wider text-primary/80">Ratan Bullion</p>
-        <h2 className="text-2xl font-semibold mt-1">My Orders</h2>
-      </div>
+      <h2 className="text-2xl font-semibold">My Orders</h2>
 
       {q.isLoading ? (
         <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>

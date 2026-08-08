@@ -208,7 +208,7 @@ function ProductCard({
         </button>
         <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md border border-border bg-background flex items-center justify-center">
           {img?.image_url ? (
-            <img src={img.image_url} alt={p.product_code ?? "Product"} className="h-full w-full object-cover" />
+            <img loading="lazy" decoding="async" src={img.image_url} alt={p.product_code ?? "Product"} className="h-full w-full object-cover" />
           ) : (
             <ImageIcon className="h-4 w-4 text-muted-foreground" />
           )}
