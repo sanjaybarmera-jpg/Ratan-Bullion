@@ -33,7 +33,15 @@ function ProductImage({ src, alt, className }: { src?: string; alt: string; clas
       </div>
     );
   }
-  return <img src={src} alt={alt} loading="lazy" className={`object-cover ${className ?? ""}`} />;
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      className={`object-cover ${className ?? ""}`}
+    />
+  );
 }
 
 function EnquiryButtons({
@@ -232,10 +240,14 @@ export function JewelleryPage() {
   const prodQ = useQuery({
     queryKey: ["rb", "jewellery", "products"],
     queryFn: fetchJewelleryProducts,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
   });
   const catQ = useQuery({
     queryKey: ["rb", "jewellery", "categories"],
     queryFn: fetchJewelleryCategories,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
   });
   const settingsQ = useQuery({
     queryKey: ["rb", "market_settings"],
