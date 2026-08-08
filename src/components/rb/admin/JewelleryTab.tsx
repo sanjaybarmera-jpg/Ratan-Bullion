@@ -108,7 +108,7 @@ function CategoryEditor({ token, initial, onSaved }: { token: string; initial: C
       <div className="flex items-start gap-3">
         <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md border border-border bg-background flex items-center justify-center">
           {d.image_url ? (
-            <img src={d.image_url} alt={d.name ?? "Category"} className="h-full w-full object-cover" />
+            <img loading="lazy" decoding="async" src={d.image_url} alt={d.name ?? "Category"} className="h-full w-full object-cover" />
           ) : (
             <ImageIcon className="h-5 w-5 text-muted-foreground" />
           )}
@@ -294,7 +294,7 @@ function ProductImages({ token, productId, images }: { token: string; productId:
         <div className="grid grid-cols-3 gap-2 md:grid-cols-4 xl:grid-cols-6">
           {sorted.map((img, i) => (
             <div key={img.id} className="relative overflow-hidden rounded-md border border-border">
-              <img src={img.image_url ?? ""} alt={img.alt_text ?? "Product"} className="h-20 w-full object-cover" />
+              <img loading="lazy" decoding="async" src={img.image_url ?? ""} alt={img.alt_text ?? "Product"} className="h-20 w-full object-cover" />
               {i === 0 && (
                 <span className="absolute left-1 top-1 rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">
                   MAIN
