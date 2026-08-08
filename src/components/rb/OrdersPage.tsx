@@ -100,9 +100,7 @@ export function OrdersPage() {
         : "Register or wait for dealer approval to view your orders.";
     return (
       <section className="space-y-4">
-        <div>
-          <h2 className="text-2xl font-semibold mt-1">My Orders</h2>
-        </div>
+        <h2 className="text-2xl font-semibold">My Orders</h2>
         <div className="rounded-xl border border-gold/25 bg-card p-6 text-center">
           <ClipboardList className="mx-auto h-8 w-8 text-muted-foreground/40" />
           <p className="mt-3 text-sm text-foreground/90">{msg}</p>
