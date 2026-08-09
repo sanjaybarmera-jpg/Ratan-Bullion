@@ -320,7 +320,9 @@ function CollectionDetail({
 
   const [editingInfo, setEditingInfo] = useState(false);
   const [sel, setSel] = useState<Record<string, boolean>>({});
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [progress, setProgress] = useState<{ done: number; total: number; phase: string } | null>(null);
+  const [saved, setSaved] = useState<string | null>(null);
+
   const [dragOver, setDragOver] = useState(false);
   const [uploadErr, setUploadErr] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
