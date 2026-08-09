@@ -59,17 +59,10 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onerror = () => reject(new Error("Could not read file"));
-    r.onload = () => {
-      const s = String(r.result);
-      resolve(s.slice(s.indexOf(",") + 1));
-    };
-    r.readAsDataURL(file);
-  });
+function kb(n: number) {
+  return `${Math.max(1, Math.round(n / 1024))} KB`;
 }
+
 
 /* ---------------- Collection editor row ---------------- */
 
