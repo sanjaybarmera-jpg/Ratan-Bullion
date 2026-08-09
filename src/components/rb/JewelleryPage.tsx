@@ -8,11 +8,10 @@ import {
   productType,
   productCollection,
   uniqueSorted,
-  PRODUCT_TYPE_ORDER,
-  COLLECTION_ORDER,
   type JewelleryCategory,
   type JewelleryProduct,
 } from "@/lib/rb-jewellery";
+
 
 import { fetchMarketSettings } from "@/lib/rb-rates";
 
