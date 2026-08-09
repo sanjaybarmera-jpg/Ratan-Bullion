@@ -484,9 +484,11 @@ function CollectionDetail({
           className="mt-2 inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-50"
         >
           {progress ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
-          {progress ? `Uploading ${progress.done}/${progress.total}` : "Upload Products"}
+          {progress ? `${progress.phase} ${progress.done}/${progress.total}` : "Upload Products"}
         </button>
+        {saved && <p className="mt-1 text-[11px] text-muted-foreground">{saved}</p>}
         {uploadErr && <p className="mt-1 text-[11px] text-destructive">{uploadErr}</p>}
+
       </div>
 
       {/* Bulk bar */}
