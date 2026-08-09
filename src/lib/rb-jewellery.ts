@@ -19,9 +19,17 @@ export type JewelleryImage = {
   is_active: boolean | null;
 };
 
+export type JewelleryCollectionRef = {
+  id?: string;
+  product_type: string | null;
+  collection_name: string | null;
+};
+
 export type JewelleryProduct = {
   id: string;
   category_id: string | null;
+  collection_id: string | null;
+  product_type: string | null;
   name: string;
   product_code: string;
   description: string | null;
@@ -33,13 +41,15 @@ export type JewelleryProduct = {
   sku: string | null;
   is_active: boolean | null;
   sort_order: number | null;
+  jewellery_collections?: JewelleryCollectionRef | null;
   jewellery_images?: JewelleryImage[] | null;
 };
 
 const CATEGORY_COLUMNS = "id,name,slug,image_url,sort_order,is_active";
 const PRODUCT_COLUMNS =
-  "id,category_id,name,product_code,description,metal,purity,gross_weight,net_weight,making_charge,sku,is_active,sort_order";
+  "id,category_id,collection_id,product_type,name,product_code,description,metal,purity,gross_weight,net_weight,making_charge,sku,is_active,sort_order";
 const IMAGE_COLUMNS = "id,product_id,image_url,alt_text,sort_order,is_active";
+const COLLECTION_COLUMNS = "product_type,collection_name";
 
 export async function fetchJewelleryCategories(): Promise<JewelleryCategory[]> {
   const { data, error } = await rbSupabase
@@ -54,7 +64,9 @@ export async function fetchJewelleryCategories(): Promise<JewelleryCategory[]> {
 export async function fetchJewelleryProducts(): Promise<JewelleryProduct[]> {
   const { data, error } = await rbSupabase
     .from("jewellery_products")
-    .select(`${PRODUCT_COLUMNS}, jewellery_images(${IMAGE_COLUMNS})`)
+    .select(
+      `${PRODUCT_COLUMNS}, jewellery_collections(${COLLECTION_COLUMNS}), jewellery_images(${IMAGE_COLUMNS})`,
+    )
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
   if (error) throw new Error(error.message);
@@ -69,66 +81,26 @@ export function productImages(p: JewelleryProduct): string[] {
   return Array.from(new Set(rows.map((i) => i.image_url as string)));
 }
 
-/* ---------- Showroom catalogue taxonomy (derived client-side) ---------- */
+/* ---------- Showroom taxonomy — driven entirely by database values ---------- */
 
-export const METALS = ["Gold", "Silver", "Diamond", "Platinum"] as const;
-export type Metal = (typeof METALS)[number];
-
-const PRODUCT_TYPES = [
-  "Payal",
-  "Ring",
-  "Necklace",
-  "Mangalsutra",
-  "Pendant",
-  "Bangles",
-  "Bracelet",
-  "Chain",
-  "Kada",
-];
-
-const COLLECTIONS = [
-  "Jodhpuri",
-  "Rajkot",
-  "Bombay Fancy",
-  "Antique",
-  "Italian",
-  "Temple",
-  "Lightweight",
-  "Traditional",
-];
-
-function haystack(p: JewelleryProduct) {
-  return `${p.name ?? ""} ${p.description ?? ""} ${p.sku ?? ""}`.toLowerCase();
+function clean(v: string | null | undefined): string | null {
+  const s = (v ?? "").trim();
+  return s ? s : null;
 }
 
-export function productMetal(p: JewelleryProduct): Metal | null {
-  const m = (p.metal ?? "").toLowerCase();
-  const found = METALS.find((x) => m.includes(x.toLowerCase()));
-  if (found) return found;
-  const h = haystack(p);
-  return METALS.find((x) => h.includes(x.toLowerCase())) ?? null;
+/** Product Type comes from the product row, falling back to its collection's type. */
+export function productType(p: JewelleryProduct): string | null {
+  return clean(p.product_type) ?? clean(p.jewellery_collections?.product_type ?? null);
 }
 
-export function productType(p: JewelleryProduct): string {
-  const explicit = (p as { product_type?: string | null }).product_type;
-  if (explicit && explicit.trim()) return explicit.trim();
-  const h = haystack(p);
-  return PRODUCT_TYPES.find((t) => h.includes(t.toLowerCase().replace(/s$/, ""))) ?? "Other";
+/** Collection name comes from the linked jewellery_collections row. */
+export function productCollection(p: JewelleryProduct): string | null {
+  return clean(p.jewellery_collections?.collection_name ?? null);
 }
 
-export function productCollection(p: JewelleryProduct): string {
-  const h = haystack(p);
-  return COLLECTIONS.find((c) => h.includes(c.toLowerCase())) ?? "Classic";
+/** Unique, alphabetically sorted list of database values (no synthetic buckets). */
+export function uniqueSorted(values: (string | null)[]): string[] {
+  const set = new Set<string>();
+  for (const v of values) if (v) set.add(v);
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
 }
-
-export function uniqueSorted(values: string[], order: string[]): string[] {
-  const set = Array.from(new Set(values));
-  return set.sort((a, b) => {
-    const ia = order.indexOf(a);
-    const ib = order.indexOf(b);
-    return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib) || a.localeCompare(b);
-  });
-}
-
-export const PRODUCT_TYPE_ORDER = PRODUCT_TYPES;
-export const COLLECTION_ORDER = COLLECTIONS;

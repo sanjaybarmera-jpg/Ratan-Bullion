@@ -8,11 +8,10 @@ import {
   productType,
   productCollection,
   uniqueSorted,
-  PRODUCT_TYPE_ORDER,
-  COLLECTION_ORDER,
   type JewelleryCategory,
   type JewelleryProduct,
 } from "@/lib/rb-jewellery";
+
 
 import { fetchMarketSettings } from "@/lib/rb-rates";
 
@@ -285,18 +284,13 @@ export function JewelleryPage() {
     () => (category ? products.filter((p) => p.category_id === category.id) : []),
     [products, category],
   );
-  const types = useMemo(
-    () => uniqueSorted(byCategory.map(productType), PRODUCT_TYPE_ORDER),
-    [byCategory],
-  );
+  const types = useMemo(() => uniqueSorted(byCategory.map(productType)), [byCategory]);
   const byType = useMemo(
     () => (type ? byCategory.filter((p) => productType(p) === type) : []),
     [byCategory, type],
   );
-  const collections = useMemo(
-    () => uniqueSorted(byType.map(productCollection), COLLECTION_ORDER),
-    [byType],
-  );
+  const collections = useMemo(() => uniqueSorted(byType.map(productCollection)), [byType]);
+
   const shown = useMemo(
     () => (collection ? byType.filter((p) => productCollection(p) === collection) : []),
     [byType, collection],

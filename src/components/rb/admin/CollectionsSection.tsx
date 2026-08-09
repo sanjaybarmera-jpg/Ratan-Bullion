@@ -18,6 +18,8 @@ import {
   adminUpsertJewelleryProduct,
   adminDeleteJewelleryProduct,
 } from "@/lib/rb-admin.functions";
+import { compressImageFile, PRODUCT_IMAGE_OPTS } from "@/lib/rb-image-compress";
+
 
 export type Category = { id?: string; name?: string | null; is_active?: boolean | null };
 
@@ -59,17 +61,10 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onerror = () => reject(new Error("Could not read file"));
-    r.onload = () => {
-      const s = String(r.result);
-      resolve(s.slice(s.indexOf(",") + 1));
-    };
-    r.readAsDataURL(file);
-  });
+function kb(n: number) {
+  return `${Math.max(1, Math.round(n / 1024))} KB`;
 }
+
 
 /* ---------------- Collection editor row ---------------- */
 
@@ -191,14 +186,18 @@ function ProductCard({
     onSuccess: invalidate,
   });
   const replace = useMutation({
-    mutationFn: async (file: File) => replaceFn({
-      data: {
-        token, productId: p.id, fileName: file.name,
-        contentType: file.type || "image/jpeg", dataBase64: await fileToBase64(file),
-      },
-    }),
+    mutationFn: async (file: File) => {
+      const img = await compressImageFile(file, PRODUCT_IMAGE_OPTS);
+      return replaceFn({
+        data: {
+          token, productId: p.id, fileName: img.fileName,
+          contentType: img.contentType, dataBase64: img.dataBase64,
+        },
+      });
+    },
     onSuccess: invalidate,
   });
+
 
   return (
     <div className={"rounded-lg border bg-card " + (selected ? "border-primary/60" : "border-border")}>
@@ -321,7 +320,9 @@ function CollectionDetail({
 
   const [editingInfo, setEditingInfo] = useState(false);
   const [sel, setSel] = useState<Record<string, boolean>>({});
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [progress, setProgress] = useState<{ done: number; total: number; phase: string } | null>(null);
+  const [saved, setSaved] = useState<string | null>(null);
+
   const [dragOver, setDragOver] = useState(false);
   const [uploadErr, setUploadErr] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -344,28 +345,42 @@ function CollectionDetail({
     const images = files.filter((f) => f.type.startsWith("image/"));
     if (!images.length) return;
     setUploadErr(null);
-    setProgress({ done: 0, total: images.length });
+    setSaved(null);
+    setProgress({ done: 0, total: images.length, phase: "Compressing" });
+    let originalTotal = 0;
+    let finalTotal = 0;
     for (let i = 0; i < images.length; i++) {
       try {
         const f = images[i];
+        setProgress({ done: i, total: images.length, phase: "Compressing" });
+        const img = await compressImageFile(f, PRODUCT_IMAGE_OPTS);
+        originalTotal += img.originalBytes;
+        finalTotal += img.bytes;
+        setProgress({ done: i, total: images.length, phase: "Uploading" });
+        // Assignment is unchanged: every image still becomes a product in this collection.
         await createFn({
           data: {
             token,
             collectionId: collection.id!,
-            fileName: f.name,
-            contentType: f.type || "image/jpeg",
-            dataBase64: await fileToBase64(f),
+            fileName: img.fileName,
+            contentType: img.contentType,
+            dataBase64: img.dataBase64,
           },
         });
       } catch (e) {
         setUploadErr(e instanceof Error ? e.message : "Upload failed");
         break;
       }
-      setProgress({ done: i + 1, total: images.length });
+      setProgress({ done: i + 1, total: images.length, phase: "Uploading" });
     }
     setProgress(null);
+    if (finalTotal > 0) {
+      const pct = Math.round((1 - finalTotal / Math.max(1, originalTotal)) * 100);
+      setSaved(`Optimised ${kb(originalTotal)} → ${kb(finalTotal)} (−${pct}%) before upload`);
+    }
     invalidate();
   }
+
 
   const bulk = useMutation({
     mutationFn: (action: "activate" | "deactivate" | "delete") =>
@@ -469,9 +484,11 @@ function CollectionDetail({
           className="mt-2 inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-50"
         >
           {progress ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
-          {progress ? `Uploading ${progress.done}/${progress.total}` : "Upload Products"}
+          {progress ? `${progress.phase} ${progress.done}/${progress.total}` : "Upload Products"}
         </button>
+        {saved && <p className="mt-1 text-[11px] text-muted-foreground">{saved}</p>}
         {uploadErr && <p className="mt-1 text-[11px] text-destructive">{uploadErr}</p>}
+
       </div>
 
       {/* Bulk bar */}

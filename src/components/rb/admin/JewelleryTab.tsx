@@ -54,17 +54,12 @@ const inputCls =
   "mt-0.5 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground";
 const labelCls = "text-[10px] uppercase tracking-wider text-muted-foreground";
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onerror = () => reject(new Error("Could not read file"));
-    r.onload = () => {
-      const s = String(r.result);
-      resolve(s.slice(s.indexOf(",") + 1));
-    };
-    r.readAsDataURL(file);
-  });
-}
+import {
+  compressImageFile,
+  PRODUCT_IMAGE_OPTS,
+  THUMB_IMAGE_OPTS,
+} from "@/lib/rb-image-compress";
+
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -95,11 +90,12 @@ function CategoryEditor({ token, initial, onSaved }: { token: string; initial: C
   });
   const upload = useMutation({
     mutationFn: async (file: File) => {
-      const dataBase64 = await fileToBase64(file);
+      const img = await compressImageFile(file, THUMB_IMAGE_OPTS);
       return uploadFn({
-        data: { token, fileName: file.name, contentType: file.type || "image/jpeg", dataBase64 },
+        data: { token, fileName: img.fileName, contentType: img.contentType, dataBase64: img.dataBase64 },
       }) as Promise<{ url?: string }>;
     },
+
     onSuccess: (r) => { if (r?.url) setD((p) => ({ ...p, image_url: r.url })); },
   });
 
@@ -232,11 +228,18 @@ function ProductImages({ token, productId, images }: { token: string; productId:
   const upload = useMutation({
     mutationFn: async (files: File[]) => {
       for (const f of files) {
-        const dataBase64 = await fileToBase64(f);
+        const img = await compressImageFile(f, PRODUCT_IMAGE_OPTS);
         await uploadFn({
-          data: { token, productId, fileName: f.name, contentType: f.type || "image/jpeg", dataBase64 },
+          data: {
+            token,
+            productId,
+            fileName: img.fileName,
+            contentType: img.contentType,
+            dataBase64: img.dataBase64,
+          },
         });
       }
+
     },
     onSuccess: invalidate,
   });
