@@ -228,11 +228,18 @@ function ProductImages({ token, productId, images }: { token: string; productId:
   const upload = useMutation({
     mutationFn: async (files: File[]) => {
       for (const f of files) {
-        const dataBase64 = await fileToBase64(f);
+        const img = await compressImageFile(f, PRODUCT_IMAGE_OPTS);
         await uploadFn({
-          data: { token, productId, fileName: f.name, contentType: f.type || "image/jpeg", dataBase64 },
+          data: {
+            token,
+            productId,
+            fileName: img.fileName,
+            contentType: img.contentType,
+            dataBase64: img.dataBase64,
+          },
         });
       }
+
     },
     onSuccess: invalidate,
   });
