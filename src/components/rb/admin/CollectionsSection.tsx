@@ -337,28 +337,42 @@ function CollectionDetail({
     const images = files.filter((f) => f.type.startsWith("image/"));
     if (!images.length) return;
     setUploadErr(null);
-    setProgress({ done: 0, total: images.length });
+    setSaved(null);
+    setProgress({ done: 0, total: images.length, phase: "Compressing" });
+    let originalTotal = 0;
+    let finalTotal = 0;
     for (let i = 0; i < images.length; i++) {
       try {
         const f = images[i];
+        setProgress({ done: i, total: images.length, phase: "Compressing" });
+        const img = await compressImageFile(f, PRODUCT_IMAGE_OPTS);
+        originalTotal += img.originalBytes;
+        finalTotal += img.bytes;
+        setProgress({ done: i, total: images.length, phase: "Uploading" });
+        // Assignment is unchanged: every image still becomes a product in this collection.
         await createFn({
           data: {
             token,
             collectionId: collection.id!,
-            fileName: f.name,
-            contentType: f.type || "image/jpeg",
-            dataBase64: await fileToBase64(f),
+            fileName: img.fileName,
+            contentType: img.contentType,
+            dataBase64: img.dataBase64,
           },
         });
       } catch (e) {
         setUploadErr(e instanceof Error ? e.message : "Upload failed");
         break;
       }
-      setProgress({ done: i + 1, total: images.length });
+      setProgress({ done: i + 1, total: images.length, phase: "Uploading" });
     }
     setProgress(null);
+    if (finalTotal > 0) {
+      const pct = Math.round((1 - finalTotal / Math.max(1, originalTotal)) * 100);
+      setSaved(`Optimised ${kb(originalTotal)} → ${kb(finalTotal)} (−${pct}%) before upload`);
+    }
     invalidate();
   }
+
 
   const bulk = useMutation({
     mutationFn: (action: "activate" | "deactivate" | "delete") =>
