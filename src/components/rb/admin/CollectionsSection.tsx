@@ -186,14 +186,18 @@ function ProductCard({
     onSuccess: invalidate,
   });
   const replace = useMutation({
-    mutationFn: async (file: File) => replaceFn({
-      data: {
-        token, productId: p.id, fileName: file.name,
-        contentType: file.type || "image/jpeg", dataBase64: await fileToBase64(file),
-      },
-    }),
+    mutationFn: async (file: File) => {
+      const img = await compressImageFile(file, PRODUCT_IMAGE_OPTS);
+      return replaceFn({
+        data: {
+          token, productId: p.id, fileName: img.fileName,
+          contentType: img.contentType, dataBase64: img.dataBase64,
+        },
+      });
+    },
     onSuccess: invalidate,
   });
+
 
   return (
     <div className={"rounded-lg border bg-card " + (selected ? "border-primary/60" : "border-border")}>
