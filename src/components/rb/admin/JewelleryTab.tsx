@@ -90,11 +90,12 @@ function CategoryEditor({ token, initial, onSaved }: { token: string; initial: C
   });
   const upload = useMutation({
     mutationFn: async (file: File) => {
-      const dataBase64 = await fileToBase64(file);
+      const img = await compressImageFile(file, THUMB_IMAGE_OPTS);
       return uploadFn({
-        data: { token, fileName: file.name, contentType: file.type || "image/jpeg", dataBase64 },
+        data: { token, fileName: img.fileName, contentType: img.contentType, dataBase64: img.dataBase64 },
       }) as Promise<{ url?: string }>;
     },
+
     onSuccess: (r) => { if (r?.url) setD((p) => ({ ...p, image_url: r.url })); },
   });
 
