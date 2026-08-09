@@ -54,17 +54,12 @@ const inputCls =
   "mt-0.5 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground";
 const labelCls = "text-[10px] uppercase tracking-wider text-muted-foreground";
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onerror = () => reject(new Error("Could not read file"));
-    r.onload = () => {
-      const s = String(r.result);
-      resolve(s.slice(s.indexOf(",") + 1));
-    };
-    r.readAsDataURL(file);
-  });
-}
+import {
+  compressImageFile,
+  PRODUCT_IMAGE_OPTS,
+  THUMB_IMAGE_OPTS,
+} from "@/lib/rb-image-compress";
+
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
