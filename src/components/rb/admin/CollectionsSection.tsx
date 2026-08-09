@@ -18,6 +18,8 @@ import {
   adminUpsertJewelleryProduct,
   adminDeleteJewelleryProduct,
 } from "@/lib/rb-admin.functions";
+import { compressImageFile, PRODUCT_IMAGE_OPTS } from "@/lib/rb-image-compress";
+
 
 export type Category = { id?: string; name?: string | null; is_active?: boolean | null };
 
