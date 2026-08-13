@@ -1,17 +1,24 @@
 import { createClient } from "@supabase/supabase-js";
 
-const url = "https://tbgqovfgtuilgdtrmaxe.supabase.co";
+const url =
+  import.meta.env["VITE_RB_SUPABASE_URL"] ||
+  process.env["RB_SUPABASE_URL"] ||
+  "";
 
-const anonKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZ3FvdmZndHVpbGdkdHJtYXhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMTM2MTIsImV4cCI6MjA5NDU4OTYxMn0.yb8v-le-muvPySggMQhBDmAj1rf-fs292fGtbDq884M";
+const publishableKey =
+  import.meta.env["VITE_RB_SUPABASE_PUBLISHABLE_KEY"] ||
+  process.env["RB_SUPABASE_PUBLISHABLE_KEY"] ||
+  "";
 
-export const RB_CONFIGURED = Boolean(url && anonKey);
+export const RB_CONFIGURED = Boolean(url && publishableKey);
 
 if (!RB_CONFIGURED) {
-  console.error("[rb-supabase] Missing Supabase URL or anon key.");
+  console.error(
+    "[rb-supabase] Missing VITE_RB_SUPABASE_URL or VITE_RB_SUPABASE_PUBLISHABLE_KEY.",
+  );
 }
 
-export const rbSupabase = createClient(url, anonKey, {
+export const rbSupabase = createClient(url, publishableKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
